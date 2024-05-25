@@ -78,18 +78,20 @@
 
         // Load images
         const playerImg = new Image();
-        playerImg.src = 'https://www.dropbox.com/scl/fi/dek9g19nqg2cz44id42uc/27a.png?rlkey=4wmijcxz23gq5vx2lkpf6dsmq&raw=1';
+        playerImg.src = 'https://www.dropbox.com/scl/fi/atf8au35rx6tqvxn9uc2y/Add-a-subheading.png?rlkey=zoljisnv8pyk0vppiwxfoc7bc&raw=1';
         const goodCoinImg = new Image();
         goodCoinImg.src = 'https://via.placeholder.com/25/FFD700/FFFFFF?text=$';
         const badCoinImg = new Image();
         badCoinImg.src = 'https://via.placeholder.com/25/FF0000/FFFFFF?text=$';
         const bullImg = new Image();
         bullImg.src = 'https://www.dropbox.com/scl/fi/4nnzw8baxfx1jvs4i6frp/Add-a-subheading-21.png?rlkey=jfxwy3ebgc16m85mo5ham6hyz&raw=1';
+        const bearImg = new Image();
+        bearImg.src = 'https://www.dropbox.com/scl/fi/r6cmuvq60ahec6tm1dde1/Add-a-subheading-24.png?rlkey=44tiuhr97z0qsm8j79s3z9jmp&raw=1';
         const samBankmanImg = new Image();
         samBankmanImg.src = 'https://www.dropbox.com/scl/fi/p8fmg80ysxgbt66gj6p0j/Sam-bankman.png?rlkey=di7i33ke3q8mgpq770p4cqtbn&raw=1';
 
         // Game variables
-        let player = { x: 50, y: canvas.height - 150, width: 50, height: 50, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0 };
+        let player = { x: 50, y: canvas.height - 225, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0 };
         let coins = [];
         let obstacles = [];
         let score = 0;
@@ -131,6 +133,12 @@
                 ground: 'linear-gradient(to top, #FFA500, #FF4500)',
                 obstacles: [{ type: 'bull', y: canvas.height - 150, width: 50, height: 50 }],
                 generateCoins: () => 'good' // Only generate good coins
+            },
+            {
+                background: '#A52A2A', // Bear Market
+                ground: 'linear-gradient(to top, #8B4513, #A52A2A)',
+                obstacles: [{ type: 'bear', y: canvas.height - 150, width: 50, height: 50 }],
+                generateCoins: () => 'bad' // Only generate bad coins
             }
         ];
 
@@ -152,6 +160,8 @@
                 drawTree(ctx, x, y, width, height);
             } else if (type === 'bull') {
                 drawBull(ctx, x, y, width, height);
+            } else if (type === 'bear') {
+                drawBear(ctx, x, y, width, height);
             } else if (type === 'samBankman') {
                 drawSamBankman(ctx, x, y, width, height);
             }
@@ -200,6 +210,10 @@
 
         function drawBull(ctx, x, y, width, height) {
             ctx.drawImage(bullImg, x, y, width, height);
+        }
+
+        function drawBear(ctx, x, y, width, height) {
+            ctx.drawImage(bearImg, x, y, width, height);
         }
 
         function drawSamBankman(ctx, x, y, width, height) {
@@ -394,4 +408,3 @@
     </script>
 </body>
 </html>
-
