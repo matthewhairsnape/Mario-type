@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wen's Adventure</title>
     <style>
+        @font-face {
+            font-family: 'Avenir';
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.eot');
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.eot?#iefix') format('embedded-opentype'),
+                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.woff2') format('woff2'),
+                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.woff') format('woff'),
+                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
         body { margin: 0; overflow: hidden; }
-        canvas { display: block; background: #87CEEB; transition: background 1s; }
+        canvas { display: block; transition: background 1s; }
         .ground {
-            background: linear-gradient(to top, #654321, #8B4513);
             height: 100px;
             position: absolute;
             bottom: 0;
@@ -32,13 +41,30 @@
             font-size: 20px;
             color: black;
         }
+        #sec-label, #bull-run-label {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 48px;
+            font-family: 'Avenir', sans-serif;
+            font-weight: bold;
+            color: white;
+            display: none;
+        }
+        #bull-run-label {
+            display: none;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <div class="ground"></div>
+    <div class="ground" id="ground"></div>
     <div id="game-over">Game Over</div>
     <div id="score">Score: 0</div>
+    <div id="sec-label">SEC</div>
+    <div id="bull-run-label">Bull Run</div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -57,51 +83,89 @@
         goodCoinImg.src = 'https://via.placeholder.com/25/FFD700/FFFFFF?text=$';
         const badCoinImg = new Image();
         badCoinImg.src = 'https://via.placeholder.com/25/FF0000/FFFFFF?text=$';
-        const treeImg = new Image();
-        treeImg.src = 'https://via.placeholder.com/50/228B22/FFFFFF?text=T';
-        const cloudImg = new Image();
-        cloudImg.src = 'https://via.placeholder.com/100x50/FFFFFF/000000?text=C';
+        const bullImg = new Image();
+        bullImg.src = 'https://www.dropbox.com/scl/fi/4nnzw8baxfx1jvs4i6frp/Add-a-subheading-21.png?rlkey=jfxwy3ebgc16m85mo5ham6hyz&raw=1';
+        const samBankmanImg = new Image();
+        samBankmanImg.src = 'https://www.dropbox.com/scl/fi/p8fmg80ysxgbt66gj6p0j/Sam-bankman.png?rlkey=di7i33ke3q8mgpq770p4cqtbn&raw=1';
 
         // Game variables
-        let player = { x: 50, y: canvas.height - 150, width: 50, height: 50, speed: 5, dy: 0, gravity: 0.5 };
+        let player = { x: 50, y: canvas.height - 150, width: 50, height: 50, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0 };
         let coins = [];
         let obstacles = [];
         let score = 0;
-        let isJumping = false;
         let gameOver = false;
         let clouds = [];
-        let bgColorIndex = 0;
-        const bgColors = ['#87CEEB', '#FFD700', '#32CD32', '#1E90FF', '#FF4500'];
-        const terrainTypes = [
-            { background: '#87CEEB', ground: '#8B4513' }, // Default
-            { background: '#1E90FF', ground: '#FFD700' }, // Beach
-            { background: '#32CD32', ground: '#228B22' }, // Jungle
-            { background: '#A52A2A', ground: '#8B4513' }  // Mountains
-        ];
         let currentTerrainIndex = 0;
+        let coinSpawnRate = 0.05;  // Initial coin spawn rate
+        let obstacleSpawnRate = 0.02;  // Initial obstacle spawn rate
+        let boostActive = false;
+        let boostDuration = 5000; // 5 seconds
+
+        const terrains = [
+            {
+                background: '#FFD700', // Desert
+                ground: 'linear-gradient(to top, #C2B280, #FFD700)',
+                obstacles: [{ type: 'cactus', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#87CEEB', // Sky
+                ground: 'linear-gradient(to top, #1E90FF, #87CEEB)',
+                obstacles: [{ type: 'cloud', y: canvas.height - 200, width: 100, height: 50 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#32CD32', // Jungle
+                ground: 'linear-gradient(to top, #228B22, #32CD32)',
+                obstacles: [{ type: 'tree', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#FF0000', // SEC (Bank)
+                ground: 'linear-gradient(to top, #8B0000, #FF0000)',
+                obstacles: [{ type: 'samBankman', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => 'bad' // Only generate bad coins
+            },
+            {
+                background: '#FFA500', // Bull Run
+                ground: 'linear-gradient(to top, #FFA500, #FF4500)',
+                obstacles: [{ type: 'bull', y: canvas.height - 150, width: 50, height: 50 }],
+                generateCoins: () => 'good' // Only generate good coins
+            }
+        ];
 
         // Controls
         document.addEventListener('keydown', (e) => {
-            if ((e.code === 'Space' || e.code === 'ArrowUp') && !isJumping) {
-                player.dy = -10;
-                isJumping = true;
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && player.jumpCount < 4) {
+                player.dy = -player.jumpPower;
+                player.jumpCount++;
             }
         });
 
-        // Draw mountain function
-        function drawMountain(ctx, x, y, width, height) {
+        // Draw elements based on type
+        function drawElement(ctx, x, y, width, height, type) {
+            if (type === 'cactus') {
+                drawCactus(ctx, x, y, width, height);
+            } else if (type === 'cloud') {
+                drawCloudObstacle(ctx, x, y, width, height);
+            } else if (type === 'tree') {
+                drawTree(ctx, x, y, width, height);
+            } else if (type === 'bull') {
+                drawBull(ctx, x, y, width, height);
+            } else if (type === 'samBankman') {
+                drawSamBankman(ctx, x, y, width, height);
+            }
+        }
+
+        function drawCactus(ctx, x, y, width, height) {
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(x + width / 4, y, width / 2, height);
             ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + width / 2, y - height);
-            ctx.lineTo(x + width, y);
-            ctx.closePath();
-            ctx.fillStyle = '#8B4513';
-            ctx.fill();
-            ctx.strokeStyle = '#654321';
+            ctx.moveTo(x + width / 2, y);
+            ctx.lineTo(x + width / 2, y - height / 2);
             ctx.stroke();
         }
 
-        // Draw tree function
         function drawTree(ctx, x, y, width, height) {
             ctx.fillStyle = '#8B4513';
             ctx.fillRect(x + width / 4, y, width / 2, height);
@@ -114,7 +178,6 @@
             ctx.fill();
         }
 
-        // Draw cloud function
         function drawCloud(ctx, x, y, width, height) {
             ctx.beginPath();
             ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
@@ -125,20 +188,71 @@
             ctx.fill();
         }
 
+        function drawCloudObstacle(ctx, x, y, width, height) {
+            ctx.beginPath();
+            ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + width / 2, y - height / 4, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + (3 * width) / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+        }
+
+        function drawBull(ctx, x, y, width, height) {
+            ctx.drawImage(bullImg, x, y, width, height);
+        }
+
+        function drawSamBankman(ctx, x, y, width, height) {
+            ctx.drawImage(samBankmanImg, x, y, width, height);
+        }
+
         // Update score display
         function updateScore() {
             document.getElementById('score').innerText = `Score: ${score}`;
-            if (score % 50 === 0 && score !== 0) {
-                changeTerrain();
-            }
         }
 
         // Change terrain
         function changeTerrain() {
-            currentTerrainIndex = (currentTerrainIndex + 1) % terrainTypes.length;
-            const newTerrain = terrainTypes[currentTerrainIndex];
-            document.querySelector('canvas').style.background = newTerrain.background;
-            document.querySelector('.ground').style.background = newTerrain.ground;
+            currentTerrainIndex = (currentTerrainIndex + 1) % terrains.length;
+            const newTerrain = terrains[currentTerrainIndex];
+            canvas.style.background = newTerrain.background;
+            document.getElementById('ground').style.background = newTerrain.ground;
+
+            // Show SEC or Bull Run label if the current terrain is SEC or Bull Run
+            if (newTerrain.background === '#FF0000') {
+                document.getElementById('sec-label').style.display = 'block';
+                document.getElementById('bull-run-label').style.display = 'none';
+            } else if (newTerrain.background === '#FFA500') {
+                document.getElementById('bull-run-label').style.display = 'block';
+                document.getElementById('sec-label').style.display = 'none';
+            } else {
+                document.getElementById('sec-label').style.display = 'none';
+                document.getElementById('bull-run-label').style.display = 'none';
+            }
+        }
+
+        // Set interval to change terrain every 10 seconds
+        setInterval(changeTerrain, 10000);
+
+        // Increase difficulty over time
+        setInterval(() => {
+            coinSpawnRate += 0.01;  // Increase coin spawn rate
+            obstacleSpawnRate += 0.005;  // Increase obstacle spawn rate
+            player.speed += 0.5;  // Increase player speed
+        }, 10000);
+
+        function activateBoost() {
+            if (boostActive) return;
+            boostActive = true;
+            const originalSpeed = player.speed;
+            player.speed *= 2;
+            score *= 2;
+            updateScore();
+
+            setTimeout(() => {
+                player.speed = originalSpeed;
+                boostActive = false;
+            }, boostDuration);
         }
 
         // Game loop
@@ -184,23 +298,36 @@
             });
 
             obstacles.forEach(obstacle => {
-                if (obstacle.type === 'tree') {
-                    drawTree(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                } else if (obstacle.type === 'mountain') {
-                    drawMountain(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                }
+                drawElement(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type);
                 obstacle.x -= obstacle.speed;
 
-                // Game over if collision with player
-                if (player.x < obstacle.x + obstacle.width &&
+                // Collision detection with player for bulls
+                if (obstacle.type === 'bull' &&
+                    player.x < obstacle.x + obstacle.width &&
                     player.x + player.width > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
                     player.y + player.height > obstacle.y) {
-                    gameOver = true;
-                    document.getElementById('game-over').style.display = 'block';
-                    setTimeout(() => {
-                        document.location.reload();
-                    }, 2000);
+                    activateBoost(); // Activate speed boost and double points
+                    obstacles = obstacles.filter(o => o !== obstacle);
+                }
+
+                // Game over if collision with non-bull obstacle
+                if (obstacle.type !== 'bull' &&
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    if (obstacle.type === 'samBankman') {
+                        score = Math.floor(score / 2); // Reduce score by half
+                        updateScore();
+                        obstacles = obstacles.filter(o => o !== obstacle);
+                    } else {
+                        gameOver = true;
+                        document.getElementById('game-over').style.display = 'block';
+                        setTimeout(() => {
+                            document.location.reload();
+                        }, 2000);
+                    }
                 }
             });
 
@@ -211,32 +338,60 @@
             // Prevent falling off the screen
             if (player.y + player.height > canvas.height) {
                 player.y = canvas.height - player.height;
-                isJumping = false;
+                player.jumpCount = 0;
             }
 
             // Generate new coins, obstacles, and clouds
-            if (Math.random() < 0.02) {
-                const coinType = Math.random() < 0.5 ? 'good' : 'bad';
-                coins.push({ x: canvas.width, y: canvas.height - 150, size: 20, speed: 5, type: coinType });
-                coins.push({ x: canvas.width + 100, y: canvas.height - 200, size: 20, speed: 5, type: coinType });
-                coins.push({ x: canvas.width + 200, y: canvas.height - 250, size: 20, speed: 5, type: coinType });
+            if (Math.random() < coinSpawnRate) {
+                const coinType = terrains[currentTerrainIndex].generateCoins();
+                coins.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height - 150),
+                    size: 20,
+                    speed: 5,
+                    type: coinType
+                });
             }
-            if (Math.random() < 0.02) {
-                const obstacleTypes = [
-                    { y: canvas.height - 150, width: 50, height: 100, type: 'tree' },
-                    { y: canvas.height - 100, width: 100, height: 50, type: 'mountain' }
-                ];
-                const obstacle = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
-                obstacles.push({ x: canvas.width, y: obstacle.y, width: obstacle.width, height: obstacle.height, speed: 5, type: obstacle.type });
+            if (Math.random() < obstacleSpawnRate && terrains[currentTerrainIndex].obstacles.length > 0) {
+                const obstacle = terrains[currentTerrainIndex].obstacles[0];
+                if (obstacle.type === 'bull') {
+                    for (let i = 0; i < 5; i++) {
+                        obstacles.push({
+                            x: canvas.width + i * (obstacle.width + 10),
+                            y: canvas.height - obstacle.height - 100,
+                            width: obstacle.width,
+                            height: obstacle.height,
+                            speed: 5,
+                            type: obstacle.type
+                        });
+                    }
+                } else {
+                    obstacles.push({
+                        x: canvas.width,
+                        y: Math.random() * (canvas.height - obstacle.height - 100),
+                        width: obstacle.width,
+                        height: obstacle.height,
+                        speed: 5,
+                        type: obstacle.type
+                    });
+                }
             }
             if (Math.random() < 0.01) {
-                clouds.push({ x: canvas.width, y: Math.random() * (canvas.height / 2), width: 100, height: 50, speed: 2 });
+                clouds.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height / 2),
+                    width: 100,
+                    height: 50,
+                    speed: 2
+                });
             }
 
             requestAnimationFrame(gameLoop);
         }
 
+        changeTerrain(); // Initialize with the first terrain
         gameLoop();
     </script>
 </body>
 </html>
+
