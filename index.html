@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wen's Adventure</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; background: #87CEEB; transition: background 1s; }
+        .ground {
+            background: linear-gradient(to top, #654321, #8B4513);
+            height: 100px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: background 1s;
+        }
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            color: red;
+            text-align: center;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="ground"></div>
+    <div id="game-over">Game Over</div>
+    <div id="score">Score: 0</div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 100;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Load images
+        const playerImg = new Image();
+        playerImg.src = 'https://www.dropbox.com/scl/fi/dek9g19nqg2cz44id42uc/27a.png?rlkey=4wmijcxz23gq5vx2lkpf6dsmq&raw=1';
+        const goodCoinImg = new Image();
+        goodCoinImg.src = 'https://via.placeholder.com/25/FFD700/FFFFFF?text=$';
+        const badCoinImg = new Image();
+        badCoinImg.src = 'https://via.placeholder.com/25/FF0000/FFFFFF?text=$';
+        const treeImg = new Image();
+        treeImg.src = 'https://via.placeholder.com/50/228B22/FFFFFF?text=T';
+        const cloudImg = new Image();
+        cloudImg.src = 'https://via.placeholder.com/100x50/FFFFFF/000000?text=C';
+
+        // Game variables
+        let player = { x: 50, y: canvas.height - 150, width: 50, height: 50, speed: 5, dy: 0, gravity: 0.5 };
+        let coins = [];
+        let obstacles = [];
+        let score = 0;
+        let isJumping = false;
+        let gameOver = false;
+        let clouds = [];
+        let bgColorIndex = 0;
+        const bgColors = ['#87CEEB', '#FFD700', '#32CD32', '#1E90FF', '#FF4500'];
+        const terrainTypes = [
+            { background: '#87CEEB', ground: '#8B4513' }, // Default
+            { background: '#1E90FF', ground: '#FFD700' }, // Beach
+            { background: '#32CD32', ground: '#228B22' }, // Jungle
+            { background: '#A52A2A', ground: '#8B4513' }  // Mountains
+        ];
+        let currentTerrainIndex = 0;
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && !isJumping) {
+                player.dy = -10;
+                isJumping = true;
+            }
+        });
+
+        // Draw mountain function
+        function drawMountain(ctx, x, y, width, height) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width / 2, y - height);
+            ctx.lineTo(x + width, y);
+            ctx.closePath();
+            ctx.fillStyle = '#8B4513';
+            ctx.fill();
+            ctx.strokeStyle = '#654321';
+            ctx.stroke();
+        }
+
+        // Draw tree function
+        function drawTree(ctx, x, y, width, height) {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x + width / 4, y, width / 2, height);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width / 2, y - height / 2);
+            ctx.lineTo(x + width, y);
+            ctx.closePath();
+            ctx.fillStyle = '#228B22';
+            ctx.fill();
+        }
+
+        // Draw cloud function
+        function drawCloud(ctx, x, y, width, height) {
+            ctx.beginPath();
+            ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + width / 2, y - height / 4, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + (3 * width) / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+        }
+
+        // Update score display
+        function updateScore() {
+            document.getElementById('score').innerText = `Score: ${score}`;
+            if (score % 50 === 0 && score !== 0) {
+                changeTerrain();
+            }
+        }
+
+        // Change terrain
+        function changeTerrain() {
+            currentTerrainIndex = (currentTerrainIndex + 1) % terrainTypes.length;
+            const newTerrain = terrainTypes[currentTerrainIndex];
+            document.querySelector('canvas').style.background = newTerrain.background;
+            document.querySelector('.ground').style.background = newTerrain.ground;
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (gameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw clouds
+            clouds.forEach(cloud => {
+                drawCloud(ctx, cloud.x, cloud.y, cloud.width, cloud.height);
+                cloud.x -= cloud.speed;
+
+                // Remove cloud if it goes off screen
+                if (cloud.x + cloud.width < 0) {
+                    clouds = clouds.filter(c => c !== cloud);
+                }
+            });
+
+            // Draw player
+            ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+
+            // Draw coins and obstacles
+            coins.forEach(coin => {
+                const coinImg = coin.type === 'good' ? goodCoinImg : badCoinImg;
+                ctx.drawImage(coinImg, coin.x, coin.y, coin.size, coin.size);
+                coin.x -= coin.speed;
+
+                // Collision detection with player
+                if (player.x < coin.x + coin.size &&
+                    player.x + player.width > coin.x &&
+                    player.y < coin.y + coin.size &&
+                    player.y + player.height > coin.y) {
+                    if (coin.type === 'good') {
+                        score += 10;
+                    } else {
+                        score -= 10;
+                        if (score < 0) score = 0;
+                    }
+                    updateScore();
+                    coins = coins.filter(c => c !== coin);
+                }
+            });
+
+            obstacles.forEach(obstacle => {
+                if (obstacle.type === 'tree') {
+                    drawTree(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                } else if (obstacle.type === 'mountain') {
+                    drawMountain(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                }
+                obstacle.x -= obstacle.speed;
+
+                // Game over if collision with player
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    gameOver = true;
+                    document.getElementById('game-over').style.display = 'block';
+                    setTimeout(() => {
+                        document.location.reload();
+                    }, 2000);
+                }
+            });
+
+            // Apply gravity
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            // Prevent falling off the screen
+            if (player.y + player.height > canvas.height) {
+                player.y = canvas.height - player.height;
+                isJumping = false;
+            }
+
+            // Generate new coins, obstacles, and clouds
+            if (Math.random() < 0.02) {
+                const coinType = Math.random() < 0.5 ? 'good' : 'bad';
+                coins.push({ x: canvas.width, y: canvas.height - 150, size: 20, speed: 5, type: coinType });
+                coins.push({ x: canvas.width + 100, y: canvas.height - 200, size: 20, speed: 5, type: coinType });
+                coins.push({ x: canvas.width + 200, y: canvas.height - 250, size: 20, speed: 5, type: coinType });
+            }
+            if (Math.random() < 0.02) {
+                const obstacleTypes = [
+                    { y: canvas.height - 150, width: 50, height: 100, type: 'tree' },
+                    { y: canvas.height - 100, width: 100, height: 50, type: 'mountain' }
+                ];
+                const obstacle = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+                obstacles.push({ x: canvas.width, y: obstacle.y, width: obstacle.width, height: obstacle.height, speed: 5, type: obstacle.type });
+            }
+            if (Math.random() < 0.01) {
+                clouds.push({ x: canvas.width, y: Math.random() * (canvas.height / 2), width: 100, height: 50, speed: 2 });
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
