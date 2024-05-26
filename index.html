@@ -46,29 +46,43 @@
         #bear-value {
             top: 55%; /* Adjusted position */
         }
-        #game-over {
+        #game-over-screen {
+            position: absolute;
             top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            display: none;
+        }
+        #game-over {
             font-size: 5vh;
             color: red;
             padding: 2vh;
         }
         #leaderboard {
-            top: 60%;
             padding: 2vh;
+            width: 90vw; /* Ensure it fits within the screen */
+            margin: auto;
+            color: white;
         }
         #leaderboard h2 {
             font-size: 4vh;
             margin-bottom: 1vh;
         }
-        #leaderboard ul {
-            list-style-type: none;
-            padding: 0;
+        #leaderboard table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        #leaderboard ul li {
+        #leaderboard table, #leaderboard th, #leaderboard td {
+            border: 1px solid white;
+        }
+        #leaderboard th, #leaderboard td {
+            padding: 1vh;
+            text-align: center;
             font-size: 3vh;
         }
-        #restart-button {
-            top: 70%;
+        #share-button, #restart-button, #bank-button {
             padding: 1vh 2vh;
             font-size: 3vh;
             background-color: white;
@@ -76,7 +90,11 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 1vh;
             width: 50vw; /* Ensure it fits within the screen */
+        }
+        #bank-button {
+            top: 75%;
         }
         #score, #health {
             position: absolute;
@@ -92,25 +110,88 @@
         #health {
             top: 7vh; /* Positioned below the score */
         }
+        #opening-page {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            width: 90vw; /* Ensure it fits within the screen */
+            font-size: 3.5vh; /* Match the font size */
+            font-weight: bold;
+        }
+        #yes-button, #no-button {
+            padding: 1vh 2vh;
+            font-size: 3vh;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 1vh;
+            width: 40vw; /* Ensure it fits within the screen */
+        }
+        #characters {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2vh;
+        }
+        #characters img {
+            width: 10vw;
+            height: auto;
+            margin-right: 1vw;
+        }
+        #characters img:last-child {
+            margin-right: 0;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div class="ground" id="ground"></div>
-    <div id="score">Score: 0</div>
-    <div id="health">Health: 20</div>
+    <div id="opening-page">
+        <div id="characters">
+            <img id="player-img" src="https://www.dropbox.com/scl/fi/vst3f1284optolu377rk6/Add-a-subheading-5.svg?rlkey=4vvnqmxq8qjcxw29rpv9uydv2&raw=1" alt="Player">
+            <img id="good-coin-img" src="https://www.dropbox.com/scl/fi/lpmmzradg397jl3uk0faf/Add-a-subheading-6.svg?rlkey=oyxoux29ln5qfjhm2chexir3d&raw=1" alt="Good Coin">
+            <img id="bad-coin-img" src="https://www.dropbox.com/scl/fi/ffprp1gne2k3qi9s65diq/Add-a-subheading-3.svg?rlkey=44ro7mwowu390lkjbyilkoqb8&raw=1" alt="Bad Coin">
+            <img id="bull-img" src="https://www.dropbox.com/scl/fi/dslt1d1kd7xwp6hypdgw8/.svg?rlkey=6g1snhasrq5fklpknwlsvpmes&raw=1" alt="Bull">
+            <img id="bear-img" src="https://www.dropbox.com/scl/fi/73ioipk50ixg9qld604rs/Add-a-subheading-32.png?rlkey=f24ub3dcyz2wbokphi5pg2l12&raw=1" alt="Bear">
+            <img id="sam-bankman-img" src="https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1" alt="Sam Bankman">
+        </div>
+        <h1>Do you want to enter the world of wen?</h1>
+        <button id="yes-button" onclick="startGame()">Yes</button>
+        <button id="no-button" onclick="showNoMessage()">No</button>
+    </div>
+    <canvas id="gameCanvas" style="display:none;"></canvas>
+    <div class="ground" id="ground" style="display:none;"></div>
+    <div id="score" style="display:none;">Score: 0</div>
+    <div id="health" style="display:none;">Health: 20</div>
     <div id="sec-label" class="message">Watch out! They are coming</div>
     <div id="bull-run-label" class="message">Get Ready! You are approaching the Bull Run</div>
     <div id="message" class="message">Sam Bankman has stolen your crypto</div>
     <div id="leverage-message" class="message">200x leverage will kill you</div>
     <div id="bull-value" class="message">+0</div>
     <div id="bear-value" class="message">Bear Touched! Speed reduced!</div>
-    <div id="game-over">Game Over</div>
-    <div id="leaderboard">
-        <h2>Leaderboard</h2>
-        <ul id="leaderboard-list"></ul>
+    <div id="game-over-screen">
+        <div id="game-over">Game Over</div>
+        <div id="leaderboard">
+            <h2>Leaderboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-list">
+                    <!-- Leaderboard data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <button id="share-button" onclick="shareWithFriends()">Share with Friends</button>
+        <button id="restart-button" onclick="restartGame()">Start Again</button>
     </div>
-    <button id="restart-button" onclick="restartGame()">Start Again</button>
+    <button id="bank-button" style="display:none;" onclick="bankCoins()">Bank Coins</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -129,32 +210,21 @@
             canvas.style.marginLeft = `${(window.innerWidth - canvas.width) / 2}px`;
         }
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
         // Load images
-        const playerImg = new Image();
-        playerImg.src = 'https://www.dropbox.com/scl/fi/vst3f1284optolu377rk6/Add-a-subheading-5.svg?rlkey=4vvnqmxq8qjcxw29rpv9uydv2&raw=1';
-        const goodCoinImg = new Image();
-        goodCoinImg.src = 'https://www.dropbox.com/scl/fi/lpmmzradg397jl3uk0faf/Add-a-subheading-6.svg?rlkey=oyxoux29ln5qfjhm2chexir3d&raw=1';
-        const badCoinImg = new Image();
-        badCoinImg.src = 'https://www.dropbox.com/scl/fi/ffprp1gne2k3qi9s65diq/Add-a-subheading-3.svg?rlkey=44ro7mwowu390lkjbyilkoqb8&raw=1';
-        const bullImg = new Image();
-        bullImg.src = 'https://www.dropbox.com/scl/fi/dslt1d1kd7xwp6hypdgw8/.svg?rlkey=6g1snhasrq5fklpknwlsvpmes&raw=1';
-        const bearImg = new Image();
-        bearImg.src = 'https://www.dropbox.com/scl/fi/73ioipk50ixg9qld604rs/Add-a-subheading-32.png?rlkey=f24ub3dcyz2wbokphi5pg2l12&raw=1';
-        const samBankmanImg = new Image();
-        samBankmanImg.src = 'https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1';
-
-        // Ensure bear image is loaded before use
-        bearImg.onload = () => {
-            console.log('Bear image loaded successfully');
-        };
+        const playerImg = document.getElementById('player-img');
+        const goodCoinImg = document.getElementById('good-coin-img');
+        const badCoinImg = document.getElementById('bad-coin-img');
+        const bullImg = document.getElementById('bull-img');
+        const bearImg = document.getElementById('bear-img');
+        const samBankmanImg = document.getElementById('sam-bankman-img');
 
         // Game variables
         let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 20 };
         let coins = [];
         let obstacles = [];
         let score = 0;
+        let bankedScore = 0;
         let gameOver = false;
         let clouds = [];
         let currentTerrainIndex = 0;
@@ -372,7 +442,7 @@
 
         // Update score display
         function updateScore() {
-            document.getElementById('score').innerText = `Score: ${score}`;
+            document.getElementById('score').innerText = `Score: ${score + bankedScore}`;
         }
 
         // Update health display
@@ -531,17 +601,24 @@
             }, boostDuration);
         }
 
+        // Bank coins
+        function bankCoins() {
+            bankedScore += score;
+            score = 0;
+            updateScore();
+            showMessage("Coins banked successfully!", 2000);
+        }
+
         // Display leaderboard
         function displayLeaderboard() {
             const leaderboardElement = document.getElementById('leaderboard');
             const leaderboardList = document.getElementById('leaderboard-list');
             leaderboardList.innerHTML = '';
             leaderboard.sort((a, b) => b.score - a.score).forEach((entry, index) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+                const listItem = document.createElement('tr');
+                listItem.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
                 leaderboardList.appendChild(listItem);
             });
-            leaderboardElement.style.display = 'block';
         }
 
         // Save score to leaderboard
@@ -549,9 +626,41 @@
             const playerName = prompt('Game Over! Enter your name:');
             if (playerName) {
                 const today = new Date().toLocaleDateString();
-                leaderboard.push({ name: playerName, score, date: today });
+                leaderboard.push({ name: playerName, score: bankedScore, date: today });
                 localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
             }
+        }
+
+        function shareWithFriends() {
+            const shareText = `I scored ${score + bankedScore} points in this awesome game! Can you beat my score?`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out my score!',
+                    text: shareText,
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Thanks for sharing!');
+                }).catch(console.error);
+            } else {
+                alert('Your browser does not support the Web Share API.');
+            }
+        }
+
+        function startGame() {
+            console.log("Game is starting..."); // Add this line for debugging
+            document.getElementById('opening-page').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('ground').style.display = 'block';
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('health').style.display = 'block';
+            document.getElementById('bank-button').style.display = 'block';
+            resizeCanvas();
+            changeTerrain(); // Initialize with the first terrain
+            gameLoop();
+        }
+
+        function showNoMessage() {
+            alert("You chose not to enter the world of wen. The game will not start.");
         }
 
         function restartGame() {
@@ -560,6 +669,7 @@
             coins = [];
             obstacles = [];
             score = 0;
+            bankedScore = 0;
             gameOver = false;
             clouds = [];
             currentTerrainIndex = 0;
@@ -573,10 +683,8 @@
             bullTouched = false;
             lastTouchTime = 0;
 
-            // Hide game over message and restart button
-            document.getElementById('game-over').style.display = 'none';
-            document.getElementById('restart-button').style.display = 'none';
-            document.getElementById('leaderboard').style.display = 'none';
+            // Hide game over screen
+            document.getElementById('game-over-screen').style.display = 'none';
 
             // Restart game loop
             changeTerrain();
@@ -677,8 +785,8 @@
                         obstacles = obstacles.filter(o => o !== obstacle);
                         if (player.health <= 0) {
                             gameOver = true;
-                            document.getElementById('game-over').style.display = 'block';
-                            document.getElementById('restart-button').style.display = 'block';
+                            document.getElementById('game-over-screen').style.display = 'block';
+                            document.getElementById('bank-button').style.display = 'none';
                             saveScore();
                             displayLeaderboard();
                             return;
@@ -747,11 +855,6 @@
 
             requestAnimationFrame(gameLoop);
         }
-
-        changeTerrain(); // Initialize with the first terrain
-        gameLoop();
     </script>
 </body>
 </html>
-
-
