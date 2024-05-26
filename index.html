@@ -2,59 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wen's Adventure</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspect Ratio 9:19.5 Game</title>
     <style>
-        @font-face {
-            font-family: 'Avenir';
-            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.eot');
-            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.eot?#iefix') format('embedded-opentype'),
-                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.woff2') format('woff2'),
-                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.woff') format('woff'),
-                url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/avenir-bold.ttf') format('truetype');
-            font-weight: bold;
-            font-style: normal;
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+            font-family: Arial, sans-serif;
         }
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; transition: background 1s; }
-        .ground {
-            height: 100px;
+        #sec-label, #bull-run-label, #message {
             position: absolute;
-            bottom: 0;
-            width: 100%;
-            transition: background 1s;
+            top: 14vh; /* Adjusted to be below health */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3.5vh;
+            font-weight: bold;
+            color: white;
+            display: none;
+            width: 90vw; /* Ensure it fits within the screen */
+            text-align: center;
         }
         #game-over {
-            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 36px;
+            font-size: 5vh;
+            font-weight: bold;
             color: red;
+            display: none;
             text-align: center;
+            width: 90vw; /* Ensure it fits within the screen */
         }
         #score {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-            color: black;
-        }
-        #sec-label, #bull-run-label {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 48px;
-            font-family: 'Avenir', sans-serif;
-            font-weight: bold;
-            color: white;
-            display: none;
-        }
-        #bull-run-label {
-            display: none;
+            top: 2vh;
             left: 50%;
             transform: translateX(-50%);
+            font-size: 3vh;
+            color: white;
+            text-align: center;
+            width: 90vw; /* Ensure it fits within the screen */
+        }
+        #health {
+            position: absolute;
+            top: 7vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3vh;
+            color: white;
+            text-align: center;
+            width: 90vw; /* Ensure it fits within the screen */
+        }
+        #leaderboard {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            display: none;
+            text-align: center;
+            width: 90vw; /* Ensure it fits within the screen */
+        }
+        #leaderboard h2 {
+            font-size: 4vh;
+            margin-bottom: 1vh;
+        }
+        #leaderboard ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #leaderboard ul li {
+            font-size: 3vh;
+        }
+        #restart-button {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1vh 2vh;
+            font-size: 3vh;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            width: 50vw; /* Ensure it fits within the screen */
         }
     </style>
 </head>
@@ -63,15 +99,31 @@
     <div class="ground" id="ground"></div>
     <div id="game-over">Game Over</div>
     <div id="score">Score: 0</div>
-    <div id="sec-label">SEC</div>
-    <div id="bull-run-label">Bull Run</div>
+    <div id="health">Health: 20</div>
+    <div id="sec-label">Watch out! They are coming</div>
+    <div id="bull-run-label">Get Ready! You are approaching the Bull Run</div>
+    <div id="message">Sam Bankman has stolen your crypto</div>
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboard-list"></ul>
+    </div>
+    <button id="restart-button" onclick="restartGame()">Start Again</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - 100;
+            const aspectRatio = 11 / 19.5; // Further adjusted aspect ratio for a larger view
+            const windowAspectRatio = window.innerWidth / window.innerHeight;
+            if (windowAspectRatio < aspectRatio) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerWidth / aspectRatio;
+            } else {
+                canvas.height = window.innerHeight;
+                canvas.width = window.innerHeight * aspectRatio;
+            }
+            canvas.style.marginTop = `${(window.innerHeight - canvas.height) / 2}px`;
+            canvas.style.marginLeft = `${(window.innerWidth - canvas.width) / 2}px`;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -80,18 +132,18 @@
         const playerImg = new Image();
         playerImg.src = 'https://www.dropbox.com/scl/fi/atf8au35rx6tqvxn9uc2y/Add-a-subheading.png?rlkey=zoljisnv8pyk0vppiwxfoc7bc&raw=1';
         const goodCoinImg = new Image();
-        goodCoinImg.src = 'https://via.placeholder.com/25/FFD700/FFFFFF?text=$';
+        goodCoinImg.src = 'https://www.dropbox.com/scl/fi/gdyn2hd5kuot5nsiqm9p2/Add-a-subheading-30.png?rlkey=6sim5mb2bhtosogaqua4h5vrc&raw=1';
         const badCoinImg = new Image();
-        badCoinImg.src = 'https://via.placeholder.com/25/FF0000/FFFFFF?text=$';
+        badCoinImg.src = 'https://www.dropbox.com/scl/fi/0ew4qauq0bbd2utthxbjo/Add-a-subheading-26.png?rlkey=2npzefqcrma42yfkny88s24z4&raw=1';
         const bullImg = new Image();
         bullImg.src = 'https://www.dropbox.com/scl/fi/4nnzw8baxfx1jvs4i6frp/Add-a-subheading-21.png?rlkey=jfxwy3ebgc16m85mo5ham6hyz&raw=1';
         const bearImg = new Image();
         bearImg.src = 'https://www.dropbox.com/scl/fi/r6cmuvq60ahec6tm1dde1/Add-a-subheading-24.png?rlkey=44tiuhr97z0qsm8j79s3z9jmp&raw=1';
         const samBankmanImg = new Image();
-        samBankmanImg.src = 'https://www.dropbox.com/scl/fi/p8fmg80ysxgbt66gj6p0j/Sam-bankman.png?rlkey=di7i33ke3q8mgpq770p4cqtbn&raw=1';
+        samBankmanImg.src = 'https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1';
 
         // Game variables
-        let player = { x: 50, y: canvas.height - 225, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0 };
+        let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 20 };
         let coins = [];
         let obstacles = [];
         let score = 0;
@@ -102,6 +154,9 @@
         let obstacleSpawnRate = 0.02;  // Initial obstacle spawn rate
         let boostActive = false;
         let boostDuration = 5000; // 5 seconds
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        let fencesAllowed = false;  // Flag to allow fences after 10 seconds
+        let doublePointsActive = false;
 
         const terrains = [
             {
@@ -139,12 +194,33 @@
                 ground: 'linear-gradient(to top, #8B4513, #A52A2A)',
                 obstacles: [{ type: 'bear', y: canvas.height - 150, width: 50, height: 50 }],
                 generateCoins: () => 'bad' // Only generate bad coins
+            },
+            {
+                background: '#ADD8E6', // Glaciers
+                ground: 'linear-gradient(to top, #ADD8E6, #FFFFFF)',
+                obstacles: [{ type: 'glacier', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#FFDAB9', // Pyramids
+                ground: 'linear-gradient(to top, #C2B280, #FFDAB9)',
+                obstacles: [{ type: 'pyramid', y: canvas.height - 150, width: 100, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
             }
         ];
 
         // Controls
         document.addEventListener('keydown', (e) => {
             if ((e.code === 'Space' || e.code === 'ArrowUp') && player.jumpCount < 4) {
+                player.dy = -player.jumpPower;
+                player.jumpCount++;
+            }
+        });
+
+        // Mobile controls
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (player.jumpCount < 4) {
                 player.dy = -player.jumpPower;
                 player.jumpCount++;
             }
@@ -164,6 +240,12 @@
                 drawBear(ctx, x, y, width, height);
             } else if (type === 'samBankman') {
                 drawSamBankman(ctx, x, y, width, height);
+            } else if (type === 'fence') {
+                drawFence(ctx, x, y, width, height);
+            } else if (type === 'glacier') {
+                drawGlacier(ctx, x, y, width, height);
+            } else if (type === 'pyramid') {
+                drawPyramid(ctx, x, y, width, height);
             }
         }
 
@@ -220,9 +302,66 @@
             ctx.drawImage(samBankmanImg, x, y, width, height);
         }
 
+        function drawFence(ctx, x, y, width, height) {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x, y, width, height);
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(x + 5, y - 10, width - 10, 10);
+        }
+
+        function drawGlacier(ctx, x, y, width, height) {
+            ctx.fillStyle = '#87CEEB';
+            ctx.beginPath();
+            ctx.moveTo(x, y + height);
+            ctx.lineTo(x + width / 2, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawPyramid(ctx, x, y, width, height) {
+            ctx.fillStyle = '#DAA520';
+            ctx.beginPath();
+            ctx.moveTo(x, y + height);
+            ctx.lineTo(x + width / 2, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawRoad() {
+            const roadHeight = 25;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, canvas.height - roadHeight, canvas.width, roadHeight);
+
+            const stripeWidth = 10;
+            const stripeHeight = 10;
+            const stripeSpacing = 20;
+            ctx.fillStyle = '#FFF';
+
+            for (let x = 0; x < canvas.width; x += stripeWidth + stripeSpacing) {
+                ctx.fillRect(x, canvas.height - roadHeight / 2 - stripeHeight / 2, stripeWidth, stripeHeight);
+            }
+        }
+
         // Update score display
         function updateScore() {
             document.getElementById('score').innerText = `Score: ${score}`;
+        }
+
+        // Update health display
+        function updateHealth() {
+            document.getElementById('health').innerText = `Health: ${player.health}`;
+        }
+
+        // Show message on screen for a short duration
+        function showMessage(text, duration = 3000) {
+            const messageElement = document.getElementById('message');
+            messageElement.innerText = text;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, duration);
         }
 
         // Change terrain
@@ -236,9 +375,11 @@
             if (newTerrain.background === '#FF0000') {
                 document.getElementById('sec-label').style.display = 'block';
                 document.getElementById('bull-run-label').style.display = 'none';
+                showMessage("Watch out! They are coming");
             } else if (newTerrain.background === '#FFA500') {
                 document.getElementById('bull-run-label').style.display = 'block';
                 document.getElementById('sec-label').style.display = 'none';
+                showMessage("Get Ready! You are approaching the Bull Run");
             } else {
                 document.getElementById('sec-label').style.display = 'none';
                 document.getElementById('bull-run-label').style.display = 'none';
@@ -247,6 +388,11 @@
 
         // Set interval to change terrain every 10 seconds
         setInterval(changeTerrain, 10000);
+
+        // Allow fences after 10 seconds
+        setTimeout(() => {
+            fencesAllowed = true;
+        }, 10000);
 
         // Increase difficulty over time
         setInterval(() => {
@@ -260,8 +406,6 @@
             boostActive = true;
             const originalSpeed = player.speed;
             player.speed *= 2;
-            score *= 2;
-            updateScore();
 
             setTimeout(() => {
                 player.speed = originalSpeed;
@@ -269,11 +413,75 @@
             }, boostDuration);
         }
 
+        function activateDoublePoints() {
+            if (doublePointsActive) return;
+            doublePointsActive = true;
+
+            setTimeout(() => {
+                doublePointsActive = false;
+            }, boostDuration);
+        }
+
+        // Display leaderboard
+        function displayLeaderboard() {
+            const leaderboardElement = document.getElementById('leaderboard');
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = '';
+            leaderboard.sort((a, b) => b.score - a.score).forEach((entry, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+                leaderboardList.appendChild(listItem);
+            });
+            leaderboardElement.style.display = 'block';
+        }
+
+        // Save score to leaderboard
+        function saveScore() {
+            const playerName = prompt('Game Over! Enter your name:');
+            if (playerName) {
+                leaderboard.push({ name: playerName, score });
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            }
+        }
+
+        function restartGame() {
+            // Reset game variables
+            player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 20 };
+            coins = [];
+            obstacles = [];
+            score = 0;
+            gameOver = false;
+            clouds = [];
+            currentTerrainIndex = 0;
+            coinSpawnRate = 0.05;  // Initial coin spawn rate
+            obstacleSpawnRate = 0.02;  // Initial obstacle spawn rate
+            boostActive = false;
+            doublePointsActive = false;
+            fencesAllowed = false;
+
+            // Hide game over message and restart button
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('restart-button').style.display = 'none';
+            document.getElementById('leaderboard').style.display = 'none';
+
+            // Restart game loop
+            changeTerrain();
+            gameLoop();
+
+            // Re-allow fences after 10 seconds
+            setTimeout(() => {
+                fencesAllowed = true;
+            }, 10000);
+        }
+
         // Game loop
         function gameLoop() {
             if (gameOver) return;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw road
+            drawRoad();
 
             // Draw clouds
             clouds.forEach(cloud => {
@@ -301,9 +509,9 @@
                     player.y < coin.y + coin.size &&
                     player.y + player.height > coin.y) {
                     if (coin.type === 'good') {
-                        score += 10;
+                        score += doublePointsActive ? 20 : 10;
                     } else {
-                        score -= 10;
+                        score -= doublePointsActive ? 20 : 10;
                         if (score < 0) score = 0;
                     }
                     updateScore();
@@ -315,18 +523,24 @@
                 drawElement(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type);
                 obstacle.x -= obstacle.speed;
 
-                // Collision detection with player for bulls
-                if (obstacle.type === 'bull' &&
+                // Show message for fences
+                if (obstacle.type === 'fence') {
+                    showMessage("Jump the regulation fence", 3000);
+                }
+
+                // Collision detection with player for bulls and bears
+                if ((obstacle.type === 'bull' || obstacle.type === 'bear') &&
                     player.x < obstacle.x + obstacle.width &&
                     player.x + player.width > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
                     player.y + player.height > obstacle.y) {
-                    activateBoost(); // Activate speed boost and double points
+                    activateBoost(); // Activate speed boost
+                    if (obstacle.type === 'bear') activateDoublePoints(); // Activate double points
                     obstacles = obstacles.filter(o => o !== obstacle);
                 }
 
-                // Game over if collision with non-bull obstacle
-                if (obstacle.type !== 'bull' &&
+                // Reduce health if collision with non-bull and non-cloud obstacle
+                if (obstacle.type !== 'bull' && obstacle.type !== 'bear' && obstacle.type !== 'cloud' &&
                     player.x < obstacle.x + obstacle.width &&
                     player.x + player.width > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
@@ -334,13 +548,20 @@
                     if (obstacle.type === 'samBankman') {
                         score = Math.floor(score / 2); // Reduce score by half
                         updateScore();
+                        showMessage("Sam Bankman has stolen your crypto", 3000);
                         obstacles = obstacles.filter(o => o !== obstacle);
                     } else {
-                        gameOver = true;
-                        document.getElementById('game-over').style.display = 'block';
-                        setTimeout(() => {
-                            document.location.reload();
-                        }, 2000);
+                        player.health--;
+                        updateHealth();
+                        obstacles = obstacles.filter(o => o !== obstacle);
+                        if (player.health <= 0) {
+                            gameOver = true;
+                            document.getElementById('game-over').style.display = 'block';
+                            document.getElementById('restart-button').style.display = 'block';
+                            saveScore();
+                            displayLeaderboard();
+                            return;
+                        }
                     }
                 }
             });
@@ -350,8 +571,8 @@
             player.y += player.dy;
 
             // Prevent falling off the screen
-            if (player.y + player.height > canvas.height) {
-                player.y = canvas.height - player.height;
+            if (player.y + player.height > canvas.height - 25) {
+                player.y = canvas.height - player.height - 25;
                 player.jumpCount = 0;
             }
 
@@ -360,7 +581,7 @@
                 const coinType = terrains[currentTerrainIndex].generateCoins();
                 coins.push({
                     x: canvas.width,
-                    y: Math.random() * (canvas.height - 150),
+                    y: Math.random() * (canvas.height - 200),
                     size: 20,
                     speed: 5,
                     type: coinType
@@ -368,11 +589,23 @@
             }
             if (Math.random() < obstacleSpawnRate && terrains[currentTerrainIndex].obstacles.length > 0) {
                 const obstacle = terrains[currentTerrainIndex].obstacles[0];
-                if (obstacle.type === 'bull') {
+                const isFence = fencesAllowed && Math.random() < 0.2; // 20% chance to spawn a fence after 10 seconds
+
+                // Ensure no trees above fences
+                if (isFence) {
+                    obstacles.push({
+                        x: canvas.width,
+                        y: canvas.height - 50 - 25, // Place the fence on the road
+                        width: 50,
+                        height: 50,
+                        speed: 5,
+                        type: 'fence'
+                    });
+                } else if (obstacle.type === 'bull') {
                     for (let i = 0; i < 5; i++) {
                         obstacles.push({
                             x: canvas.width + i * (obstacle.width + 10),
-                            y: canvas.height - obstacle.height - 100,
+                            y: canvas.height - obstacle.height - 25,
                             width: obstacle.width,
                             height: obstacle.height,
                             speed: 5,
@@ -380,9 +613,17 @@
                         });
                     }
                 } else {
+                    let newObstacleY = Math.random() * (canvas.height - obstacle.height - 100);
+                    // Avoid placing trees above fences
+                    if (obstacle.type === 'tree' || obstacle.type === 'glacier' || obstacle.type === 'pyramid') {
+                        const fencePresent = obstacles.some(o => o.type === 'fence');
+                        if (fencePresent) {
+                            newObstacleY = canvas.height - obstacle.height - 150;
+                        }
+                    }
                     obstacles.push({
                         x: canvas.width,
-                        y: Math.random() * (canvas.height - obstacle.height - 100),
+                        y: newObstacleY,
                         width: obstacle.width,
                         height: obstacle.height,
                         speed: 5,
@@ -408,3 +649,4 @@
     </script>
 </body>
 </html>
+
