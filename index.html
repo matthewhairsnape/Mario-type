@@ -25,7 +25,7 @@
             font-weight: bold;
             display: none;
         }
-        #sec-label, #bull-run-label, #message, #fence-message, #bull-value, #bear-value {
+        #sec-label, #bull-run-label, #message, #leverage-message, #bull-value, #bear-value {
             top: 30%; /* Positioned differently to avoid overlapping */
         }
         #sec-label {
@@ -37,7 +37,7 @@
         #message {
             top: 40%; /* Adjusted position */
         }
-        #fence-message {
+        #leverage-message {
             top: 45%; /* Adjusted position */
         }
         #bull-value {
@@ -102,9 +102,9 @@
     <div id="sec-label" class="message">Watch out! They are coming</div>
     <div id="bull-run-label" class="message">Get Ready! You are approaching the Bull Run</div>
     <div id="message" class="message">Sam Bankman has stolen your crypto</div>
-    <div id="fence-message" class="message">Jump the regulation fence</div>
+    <div id="leverage-message" class="message">200x leverage will kill you</div>
     <div id="bull-value" class="message">+0</div>
-    <div id="bear-value" class="message">Bear Touched! Coin points reduced!</div>
+    <div id="bear-value" class="message">Bear Touched! Speed reduced!</div>
     <div id="game-over">Game Over</div>
     <div id="leaderboard">
         <h2>Leaderboard</h2>
@@ -133,17 +133,22 @@
 
         // Load images
         const playerImg = new Image();
-        playerImg.src = 'https://www.dropbox.com/scl/fi/atf8au35rx6tqvxn9uc2y/Add-a-subheading.png?rlkey=zoljisnv8pyk0vppiwxfoc7bc&raw=1';
+        playerImg.src = 'https://www.dropbox.com/scl/fi/vst3f1284optolu377rk6/Add-a-subheading-5.svg?rlkey=4vvnqmxq8qjcxw29rpv9uydv2&raw=1';
         const goodCoinImg = new Image();
-        goodCoinImg.src = 'https://www.dropbox.com/scl/fi/gdyn2hd5kuot5nsiqm9p2/Add-a-subheading-30.png?rlkey=6sim5mb2bhtosogaqua4h5vrc&raw=1';
+        goodCoinImg.src = 'https://www.dropbox.com/scl/fi/lpmmzradg397jl3uk0faf/Add-a-subheading-6.svg?rlkey=oyxoux29ln5qfjhm2chexir3d&raw=1';
         const badCoinImg = new Image();
-        badCoinImg.src = 'https://www.dropbox.com/scl/fi/0ew4qauq0bbd2utthxbjo/Add-a-subheading-26.png?rlkey=2npzefqcrma42yfkny88s24z4&raw=1';
+        badCoinImg.src = 'https://www.dropbox.com/scl/fi/ffprp1gne2k3qi9s65diq/Add-a-subheading-3.svg?rlkey=44ro7mwowu390lkjbyilkoqb8&raw=1';
         const bullImg = new Image();
-        bullImg.src = 'https://www.dropbox.com/scl/fi/4nnzw8baxfx1jvs4i6frp/Add-a-subheading-21.png?rlkey=jfxwy3ebgc16m85mo5ham6hyz&raw=1';
+        bullImg.src = 'https://www.dropbox.com/scl/fi/dslt1d1kd7xwp6hypdgw8/.svg?rlkey=6g1snhasrq5fklpknwlsvpmes&raw=1';
         const bearImg = new Image();
-        bearImg.src = 'https://www.dropbox.com/s/hcl6wb4bjj1hjlhqvi868/Add-a-subheading-31.png?raw=1';
+        bearImg.src = 'https://www.dropbox.com/scl/fi/73ioipk50ixg9qld604rs/Add-a-subheading-32.png?rlkey=f24ub3dcyz2wbokphi5pg2l12&raw=1';
         const samBankmanImg = new Image();
         samBankmanImg.src = 'https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1';
+
+        // Ensure bear image is loaded before use
+        bearImg.onload = () => {
+            console.log('Bear image loaded successfully');
+        };
 
         // Game variables
         let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 20 };
@@ -433,12 +438,12 @@
             }, 1500); // Show for 1.5 seconds
         }
 
-        // Show Fence message
-        function showFenceMessage() {
-            const fenceMessage = document.getElementById('fence-message');
-            fenceMessage.style.display = 'block';
+        // Show leverage message
+        function showLeverageMessage() {
+            const leverageMessage = document.getElementById('leverage-message');
+            leverageMessage.style.display = 'block';
             setTimeout(() => {
-                fenceMessage.style.display = 'none';
+                leverageMessage.style.display = 'none';
             }, 2000); // Show for 2 seconds
         }
 
@@ -543,7 +548,8 @@
         function saveScore() {
             const playerName = prompt('Game Over! Enter your name:');
             if (playerName) {
-                leaderboard.push({ name: playerName, score });
+                const today = new Date().toLocaleDateString();
+                leaderboard.push({ name: playerName, score, date: today });
                 localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
             }
         }
@@ -633,7 +639,7 @@
 
                 // Show message for fences
                 if (obstacle.type === 'fence' && !obstacle.messageShown) {
-                    showFenceMessage();
+                    showLeverageMessage();
                     obstacle.messageShown = true; // Mark that the message has been shown
                 }
 
@@ -648,8 +654,8 @@
                         showBullValue("Bull Touched! Double-click to boost!");
                     }
                     if (obstacle.type === 'bear') {
-                        activateReducedPoints(); // Activate reduced points
-                        showBearValue("Bear Touched! Coin points reduced!");
+                        activateSlowdown(); // Activate slowdown
+                        showBearValue("Bear Touched! Speed reduced!");
                     }
                     obstacles = obstacles.filter(o => o !== obstacle);
                 }
@@ -703,50 +709,29 @@
                 });
             }
 
-            if (Math.random() < obstacleSpawnRate && terrains[currentTerrainIndex].obstacles.length > 0) {
-                const obstacle = terrains[currentTerrainIndex].obstacles[0];
-                const isFence = fencesAllowed && Math.random() < 0.2; // 20% chance to spawn a fence after 10 seconds
+            if (Math.random() < obstacleSpawnRate) {
+                const obstacleTypes = ['cactus', 'cloud', 'tree', 'bull', 'bear', 'samBankman', 'glacier', 'pyramid'];
+                const obstacleType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+                const yPosition = canvas.height - 50 - 25; // Default position on the road
 
-                // Ensure no trees above fences
-                if (isFence) {
+                if (obstacleType === 'bear' || obstacleType === 'bull') {
                     obstacles.push({
                         x: canvas.width,
-                        y: canvas.height - 50 - 25, // Place the fence on the road
+                        y: Math.random() * (canvas.height - 100), // Random vertical position for bears and bulls
                         width: 50,
                         height: 50,
                         speed: 5,
-                        type: 'fence'
+                        type: obstacleType
                     });
                 } else {
-                    let newObstacleY = Math.random() * (canvas.height - obstacle.height - 100);
-                    // Avoid placing trees above fences
-                    if (obstacle.type === 'tree' || obstacle.type === 'glacier' || obstacle.type === 'pyramid') {
-                        const fencePresent = obstacles.some(o => o.type === 'fence');
-                        if (fencePresent) {
-                            newObstacleY = canvas.height - obstacle.height - 150;
-                        }
-                    }
-
-                    // If the obstacle is a bull, make sure to spawn them one by one at different locations
-                    if (obstacle.type === 'bull' || obstacle.type === 'bear') {
-                        obstacles.push({
-                            x: canvas.width,
-                            y: Math.random() * (canvas.height - obstacle.height - 100),
-                            width: obstacle.width,
-                            height: obstacle.height,
-                            speed: 5,
-                            type: obstacle.type
-                        });
-                    } else {
-                        obstacles.push({
-                            x: canvas.width,
-                            y: newObstacleY,
-                            width: obstacle.width,
-                            height: obstacle.height,
-                            speed: 5,
-                            type: obstacle.type
-                        });
-                    }
+                    obstacles.push({
+                        x: canvas.width,
+                        y: yPosition,
+                        width: 50,
+                        height: 50,
+                        speed: 5,
+                        type: obstacleType
+                    });
                 }
             }
 
