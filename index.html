@@ -115,8 +115,10 @@
         }
         .buttons {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            align-items: center;
             margin-top: 20px;
+            position: relative;
         }
         .buttons button {
             padding: 10px 20px;
@@ -124,8 +126,9 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 3vh;
+            margin-bottom: 10px;
         }
-        .claim-prize {
+        .add-extra-points {
             background-color: #FFA500;
             color: black;
         }
@@ -133,19 +136,33 @@
             background-color: #ADD8E6;
             color: black;
         }
-        #score, #health {
+        .dropdown {
+            display: none;
             position: absolute;
-            top: 2vh;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 3vh;
-            color: white;
-            text-align: center;
-            width: 90vw; /* Ensure it fits within the screen */
-            z-index: 10; /* Ensure these elements are on top */
+            top: 60px;
+            background-color: #333;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 200px;
+            max-height: 150px;
+            overflow-y: auto; /* Make dropdown scrollable */
         }
-        #health {
-            top: 7vh; /* Positioned below the score */
+        .dropdown button {
+            width: 100%;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            text-align: left;
+            font-size: 3vh;
+        }
+        .dropdown button:hover {
+            background-color: #555;
+        }
+        #score, #health {
+            display: none;
         }
         #end-and-bank-button {
             position: absolute;
@@ -195,6 +212,34 @@
         #characters img:last-child {
             margin-right: 0;
         }
+        #name-input-container {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 2vh;
+            border-radius: 10px;
+            width: 90vw; /* Ensure it fits within the screen */
+        }
+        #name-input {
+            width: 80%;
+            padding: 1vh;
+            font-size: 3vh;
+            margin: 1vh 0;
+        }
+        #submit-name-button {
+            padding: 1vh 2vh;
+            font-size: 3vh;
+            background-color: #FFD700;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -211,6 +256,11 @@
         <button id="yes-button" onclick="startGame()">Yes</button>
         <button id="no-button" onclick="showNoMessage()">No</button>
     </div>
+    <div id="name-input-container">
+        <h2>Enter Your Name</h2>
+        <input type="text" id="name-input" placeholder="Your Name">
+        <button id="submit-name-button" onclick="submitName()">Submit</button>
+    </div>
     <canvas id="gameCanvas" style="display:none;"></canvas>
     <div class="ground" id="ground" style="display:none;"></div>
     <div id="score" style="display:none;">Score: 0</div>
@@ -226,7 +276,7 @@
         <div id="game-over">Game Over</div>
         <div class="leaderboard-container">
             <div class="leaderboard-header">
-                Leaderboard
+                My Wen Wallet
             </div>
             <div class="score-section">
                 <h2 id="final-score">0</h2>
@@ -237,9 +287,9 @@
                 </div>
             </div>
             <div class="game-stats" id="game-stats">
-                <div>Total Coins: <span id="total-coins">0</span></div>
-                <div>Biggest Combo: <span id="biggest-combo">0x</span></div>
-                <div>Level Reached: <span id="level-reached">0</span></div>
+                <div>Verified Coins: <span id="total-coins">0</span></div>
+                <div>Shit Coins: <span id="biggest-combo">0x</span></div>
+                <div>Total Coins: <span id="level-reached">0</span></div>
             </div>
             <div id="leaderboard-section" class="game-stats" style="display: none;">
                 <table style="width: 100%; color: white;">
@@ -255,8 +305,12 @@
                 </table>
             </div>
             <div class="buttons">
-                <button class="claim-prize" onclick="claimPrize()">Claim Prize</button>
-                <button class="my-progress" onclick="shareWithFriends()">Share</button>
+                <button class="add-extra-points" onclick="toggleDropdown()">Add Extra Points</button>
+                <div class="dropdown" id="dropdown-menu">
+                    <button id="twitter-share" onclick="shareOnTwitter()">Share on Twitter</button>
+                    <button id="discord-share" onclick="shareOnDiscord()">Share on Discord</button>
+                    <button id="telegram-share" onclick="shareOnTelegram()">Share on Telegram</button>
+                </div>
             </div>
         </div>
     </div>
@@ -323,6 +377,10 @@
         let lastHurtTime = 0;  // Last time the player was hurt
         let todayScore = 0;
         let allTimeTopScore = 0;
+
+        let twitterShared = false;
+        let discordShared = false;
+        let telegramShared = false;
 
         const terrains = [
             {
@@ -694,7 +752,6 @@
 
         // Display leaderboard
         function displayLeaderboard() {
-            const leaderboardElement = document.getElementById('leaderboard');
             const leaderboardList = document.getElementById('leaderboard-list');
             leaderboardList.innerHTML = '';
             leaderboard.sort((a, b) => b.score - a.score).forEach((entry, index) => {
@@ -702,17 +759,11 @@
                 listItem.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
                 leaderboardList.appendChild(listItem);
             });
-
-            // Update final score and other details
-            document.getElementById('final-score').innerText = todayScore;
-            document.getElementById('total-coins').innerText = todayScore; // Replace with actual value
-            document.getElementById('biggest-combo').innerText = "4x"; // Replace with actual value
-            document.getElementById('level-reached').innerText = "1"; // Replace with actual value
         }
 
         // Save score to leaderboard
         function saveScore() {
-            const playerName = prompt('Game Over! Enter your name:');
+            const playerName = localStorage.getItem('playerName');
             if (playerName) {
                 const today = new Date().toLocaleDateString();
                 leaderboard.push({ name: playerName, score: bankedScore, date: today });
@@ -720,27 +771,48 @@
             }
         }
 
-        function claimPrize() {
-            alert('Prize claimed!');
+        function addPoints(points) {
+            bankedScore += points;
+            updateScore();
+            showMessage(`${points} points added!`, 2000);
         }
 
-        function viewProgress() {
-            alert('Viewing progress!');
-        }
-
-        function shareWithFriends() {
-            const shareText = `I scored ${todayScore} points in this awesome game! Can you beat my score?`;
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Check out my score!',
-                    text: shareText,
-                    url: window.location.href
-                }).then(() => {
-                    console.log('Thanks for sharing!');
-                }).catch(console.error);
+        function shareOnTwitter() {
+            if (!twitterShared) {
+                twitterShared = true;
+                addPoints(100);
+                // Add your code to share on Twitter here
+                alert('Shared on Twitter!');
             } else {
-                alert('Your browser does not support the Web Share API.');
+                alert('You have already shared on Twitter this game.');
             }
+        }
+
+        function shareOnDiscord() {
+            if (!discordShared) {
+                discordShared = true;
+                addPoints(100);
+                // Add your code to share on Discord here
+                alert('Shared on Discord!');
+            } else {
+                alert('You have already shared on Discord this game.');
+            }
+        }
+
+        function shareOnTelegram() {
+            if (!telegramShared) {
+                telegramShared = true;
+                addPoints(100);
+                // Add your code to share on Telegram here
+                alert('Shared on Telegram!');
+            } else {
+                alert('You have already shared on Telegram this game.');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
         }
 
         function updateScoreTab(tab) {
@@ -781,21 +853,36 @@
         }
 
         function startGame() {
-            console.log("Game is starting..."); // Add this line for debugging
-            document.getElementById('opening-page').style.display = 'none';
-            document.getElementById('gameCanvas').style.display = 'block';
-            document.getElementById('ground').style.display = 'block';
-            document.getElementById('score').style.display = 'block';
-            document.getElementById('health').style.display = 'block';
-            document.getElementById('bank-button').style.display = 'block';
-            document.getElementById('end-and-bank-button').style.display = 'block';
-            resizeCanvas();
-            changeTerrain(); // Initialize with the first terrain
-            gameLoop();
+            const storedName = localStorage.getItem('playerName');
+            if (!storedName) {
+                document.getElementById('name-input-container').style.display = 'block';
+            } else {
+                document.getElementById('opening-page').style.display = 'none';
+                document.getElementById('gameCanvas').style.display = 'block';
+                document.getElementById('ground').style.display = 'block';
+                document.getElementById('score').style.display = 'block';
+                document.getElementById('health').style.display = 'block';
+                document.getElementById('bank-button').style.display = 'block';
+                document.getElementById('end-and-bank-button').style.display = 'block';
+                resizeCanvas();
+                changeTerrain(); // Initialize with the first terrain
+                gameLoop();
+            }
         }
 
         function showNoMessage() {
             alert("You chose not to enter the world of wen. The game will not start.");
+        }
+
+        function submitName() {
+            const nameInput = document.getElementById('name-input').value;
+            if (nameInput.trim() !== '') {
+                localStorage.setItem('playerName', nameInput.trim());
+                document.getElementById('name-input-container').style.display = 'none';
+                startGame();
+            } else {
+                alert('Please enter your name.');
+            }
         }
 
         function restartGame() {
@@ -818,6 +905,10 @@
             bullTouched = false;
             lastTouchTime = 0;
             lastHurtTime = 0;  // Reset the last hurt time
+
+            twitterShared = false;
+            discordShared = false;
+            telegramShared = false;
 
             // Hide game over screen
             document.getElementById('game-over-screen').style.display = 'none';
@@ -1019,3 +1110,4 @@
     </script>
 </body>
 </html>
+
