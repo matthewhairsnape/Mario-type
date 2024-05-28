@@ -54,47 +54,84 @@
             color: white;
             text-align: center;
             display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 2vh;
+            border-radius: 10px;
+            width: 90vw; /* Ensure it fits within the screen */
         }
         #game-over {
             font-size: 5vh;
             color: red;
             padding: 2vh;
         }
-        #leaderboard {
-            padding: 2vh;
-            width: 90vw; /* Ensure it fits within the screen */
-            margin: auto;
+        .leaderboard-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            padding: 20px;
             color: white;
         }
-        #leaderboard h2 {
+        .leaderboard-header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            border-radius: 10px 10px 0 0;
             font-size: 4vh;
-            margin-bottom: 1vh;
         }
-        #leaderboard table {
-            width: 100%;
-            border-collapse: collapse;
+        .score-section {
+            margin: 20px 0;
         }
-        #leaderboard table, #leaderboard th, #leaderboard td {
-            border: 1px solid white;
+        .score-section h2 {
+            margin: 5px 0;
+            font-size: 5vh;
+            color: #FFD700;
         }
-        #leaderboard th, #leaderboard td {
-            padding: 1vh;
-            text-align: center;
+        .score-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .score-tabs div {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
             font-size: 3vh;
         }
-        #share-button, #restart-button, #bank-button {
-            padding: 1vh 2vh;
-            font-size: 3vh;
-            background-color: white;
+        .score-tabs div.active {
+            background-color: #FFD700;
             color: black;
+            border-radius: 5px;
+        }
+        .game-stats {
+            margin-top: 20px;
+            font-size: 3vh;
+        }
+        .game-stats div {
+            margin: 10px 0;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin: 1vh;
-            width: 50vw; /* Ensure it fits within the screen */
+            font-size: 3vh;
         }
-        #bank-button {
-            top: 75%;
+        .claim-prize {
+            background-color: #FFA500;
+            color: black;
+        }
+        .my-progress {
+            background-color: #ADD8E6;
+            color: black;
         }
         #score, #health {
             position: absolute;
@@ -109,6 +146,19 @@
         }
         #health {
             top: 7vh; /* Positioned below the score */
+        }
+        #end-and-bank-button {
+            position: absolute;
+            top: 2vh;
+            right: 2vh;
+            padding: 1vh 2vh;
+            font-size: 2vh;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
         }
         #opening-page {
             position: absolute;
@@ -164,7 +214,8 @@
     <canvas id="gameCanvas" style="display:none;"></canvas>
     <div class="ground" id="ground" style="display:none;"></div>
     <div id="score" style="display:none;">Score: 0</div>
-    <div id="health" style="display:none;">Health: 20</div>
+    <div id="health" style="display:none;">Health: 10</div>
+    <button id="end-and-bank-button" style="display:none;" onclick="endAndBank()">End and Bank</button>
     <div id="sec-label" class="message">Watch out! They are coming</div>
     <div id="bull-run-label" class="message">Get Ready! You are approaching the Bull Run</div>
     <div id="message" class="message">Sam Bankman has stolen your crypto</div>
@@ -173,25 +224,44 @@
     <div id="bear-value" class="message">Bear Touched! Speed reduced!</div>
     <div id="game-over-screen">
         <div id="game-over">Game Over</div>
-        <div id="leaderboard">
-            <h2>Leaderboard</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Name</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-list">
-                    <!-- Leaderboard data will be inserted here -->
-                </tbody>
-            </table>
+        <div class="leaderboard-container">
+            <div class="leaderboard-header">
+                Leaderboard
+            </div>
+            <div class="score-section">
+                <h2 id="final-score">0</h2>
+                <div class="score-tabs">
+                    <div id="today-tab" class="active" onclick="updateScoreTab('today')">Today</div>
+                    <div id="all-time-tab" onclick="updateScoreTab('all-time')">All Time</div>
+                    <div id="leaderboard-tab" onclick="updateScoreTab('leaderboard')">Leaderboard</div>
+                </div>
+            </div>
+            <div class="game-stats" id="game-stats">
+                <div>Total Coins: <span id="total-coins">0</span></div>
+                <div>Biggest Combo: <span id="biggest-combo">0x</span></div>
+                <div>Level Reached: <span id="level-reached">0</span></div>
+            </div>
+            <div id="leaderboard-section" class="game-stats" style="display: none;">
+                <table style="width: 100%; color: white;">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-list">
+                    </tbody>
+                </table>
+            </div>
+            <div class="buttons">
+                <button class="claim-prize" onclick="claimPrize()">Claim Prize</button>
+                <button class="my-progress" onclick="shareWithFriends()">Share</button>
+            </div>
         </div>
-        <button id="share-button" onclick="shareWithFriends()">Share with Friends</button>
-        <button id="restart-button" onclick="restartGame()">Start Again</button>
     </div>
     <button id="bank-button" style="display:none;" onclick="bankCoins()">Bank Coins</button>
+    <audio id="cashRegisterSound" src="https://freesound.org/data/previews/195/195138_2074484-lq.mp3" preload="auto"></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -212,15 +282,24 @@
         window.addEventListener('resize', resizeCanvas);
 
         // Load images
-        const playerImg = document.getElementById('player-img');
-        const goodCoinImg = document.getElementById('good-coin-img');
-        const badCoinImg = document.getElementById('bad-coin-img');
-        const bullImg = document.getElementById('bull-img');
-        const bearImg = document.getElementById('bear-img');
-        const samBankmanImg = document.getElementById('sam-bankman-img');
+        const playerImg = new Image();
+        playerImg.src = "https://www.dropbox.com/scl/fi/vst3f1284optolu377rk6/Add-a-subheading-5.svg?rlkey=4vvnqmxq8qjcxw29rpv9uydv2&raw=1";
+        const goodCoinImg = new Image();
+        goodCoinImg.src = "https://www.dropbox.com/scl/fi/lpmmzradg397jl3uk0faf/Add-a-subheading-6.svg?rlkey=oyxoux29ln5qfjhm2chexir3d&raw=1";
+        const badCoinImg = new Image();
+        badCoinImg.src = "https://www.dropbox.com/scl/fi/ffprp1gne2k3qi9s65diq/Add-a-subheading-3.svg?rlkey=44ro7mwowu390lkjbyilkoqb8&raw=1";
+        const bullImg = new Image();
+        bullImg.src = "https://www.dropbox.com/scl/fi/dslt1d1kd7xwp6hypdgw8/.svg?rlkey=6g1snhasrq5fklpknwlsvpmes&raw=1";
+        const bearImg = new Image();
+        bearImg.src = "https://www.dropbox.com/scl/fi/73ioipk50ixg9qld604rs/Add-a-subheading-32.png?rlkey=f24ub3dcyz2wbokphi5pg2l12&raw=1";
+        const samBankmanImg = new Image();
+        samBankmanImg.src = "https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1";
+
+        // Load sounds
+        const cashRegisterSound = document.getElementById('cashRegisterSound');
 
         // Game variables
-        let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 20 };
+        let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 10 };
         let coins = [];
         let obstacles = [];
         let score = 0;
@@ -241,6 +320,9 @@
         let doublePointsActive = false;
         let bullTouched = false;
         let lastTouchTime = 0;
+        let lastHurtTime = 0;  // Last time the player was hurt
+        let todayScore = 0;
+        let allTimeTopScore = 0;
 
         const terrains = [
             {
@@ -604,6 +686,7 @@
         // Bank coins
         function bankCoins() {
             bankedScore += score;
+            todayScore += score;
             score = 0;
             updateScore();
             showMessage("Coins banked successfully!", 2000);
@@ -619,6 +702,12 @@
                 listItem.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
                 leaderboardList.appendChild(listItem);
             });
+
+            // Update final score and other details
+            document.getElementById('final-score').innerText = todayScore;
+            document.getElementById('total-coins').innerText = todayScore; // Replace with actual value
+            document.getElementById('biggest-combo').innerText = "4x"; // Replace with actual value
+            document.getElementById('level-reached').innerText = "1"; // Replace with actual value
         }
 
         // Save score to leaderboard
@@ -631,8 +720,16 @@
             }
         }
 
+        function claimPrize() {
+            alert('Prize claimed!');
+        }
+
+        function viewProgress() {
+            alert('Viewing progress!');
+        }
+
         function shareWithFriends() {
-            const shareText = `I scored ${score + bankedScore} points in this awesome game! Can you beat my score?`;
+            const shareText = `I scored ${todayScore} points in this awesome game! Can you beat my score?`;
             if (navigator.share) {
                 navigator.share({
                     title: 'Check out my score!',
@@ -646,6 +743,43 @@
             }
         }
 
+        function updateScoreTab(tab) {
+            document.getElementById('today-tab').classList.remove('active');
+            document.getElementById('all-time-tab').classList.remove('active');
+            document.getElementById('leaderboard-tab').classList.remove('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+
+            if (tab === 'today') {
+                document.getElementById('final-score').innerText = todayScore;
+                document.getElementById('game-stats').style.display = 'block';
+                document.getElementById('leaderboard-section').style.display = 'none';
+            } else if (tab === 'all-time') {
+                document.getElementById('final-score').innerText = allTimeTopScore;
+                document.getElementById('game-stats').style.display = 'block';
+                document.getElementById('leaderboard-section').style.display = 'none';
+            } else if (tab === 'leaderboard') {
+                displayLeaderboard();
+                document.getElementById('game-stats').style.display = 'none';
+                document.getElementById('leaderboard-section').style.display = 'block';
+            }
+        }
+
+        function endAndBank() {
+            bankedScore += score;
+            todayScore += score;
+            score = 0;
+            gameOver = true;
+            updateScore();
+            document.getElementById('game-over-screen').style.display = 'block';
+            document.getElementById('bank-button').style.display = 'none';
+            document.getElementById('end-and-bank-button').style.display = 'none';
+            if (todayScore > allTimeTopScore) {
+                allTimeTopScore = todayScore;
+            }
+            saveScore();
+            displayLeaderboard();
+        }
+
         function startGame() {
             console.log("Game is starting..."); // Add this line for debugging
             document.getElementById('opening-page').style.display = 'none';
@@ -654,6 +788,7 @@
             document.getElementById('score').style.display = 'block';
             document.getElementById('health').style.display = 'block';
             document.getElementById('bank-button').style.display = 'block';
+            document.getElementById('end-and-bank-button').style.display = 'block';
             resizeCanvas();
             changeTerrain(); // Initialize with the first terrain
             gameLoop();
@@ -665,7 +800,7 @@
 
         function restartGame() {
             // Reset game variables
-            player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 20 };
+            player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 10 };
             coins = [];
             obstacles = [];
             score = 0;
@@ -682,6 +817,7 @@
             fencesAllowed = false;
             bullTouched = false;
             lastTouchTime = 0;
+            lastHurtTime = 0;  // Reset the last hurt time
 
             // Hide game over screen
             document.getElementById('game-over-screen').style.display = 'none';
@@ -732,6 +868,7 @@
                     player.y + player.height > coin.y) {
                     if (coin.type === 'good') {
                         score += reducedPointsActive ? 5 : doublePointsActive ? 20 : 10;
+                        cashRegisterSound.play();  // Play the cash register sound
                     } else {
                         score -= reducedPointsActive ? 5 : doublePointsActive ? 20 : 10;
                         if (score < 0) score = 0;
@@ -774,22 +911,34 @@
                     player.x + player.width > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
                     player.y + player.height > obstacle.y) {
-                    if (obstacle.type === 'samBankman') {
-                        score = Math.floor(score / 2); // Reduce score by half
-                        updateScore();
-                        showSamMessage(); // Show Sam Bankman message
-                        obstacles = obstacles.filter(o => o !== obstacle);
-                    } else {
-                        player.health--;
-                        updateHealth();
-                        obstacles = obstacles.filter(o => o !== obstacle);
-                        if (player.health <= 0) {
-                            gameOver = true;
-                            document.getElementById('game-over-screen').style.display = 'block';
-                            document.getElementById('bank-button').style.display = 'none';
-                            saveScore();
-                            displayLeaderboard();
-                            return;
+                    const now = Date.now();
+                    if (now - lastHurtTime > 3000) {  // 3-second cooldown
+                        if (obstacle.type === 'samBankman') {
+                            score = Math.floor(score / 2); // Reduce score by half
+                            updateScore();
+                            showSamMessage(); // Show Sam Bankman message
+                            obstacles = obstacles.filter(o => o !== obstacle);
+                        } else {
+                            player.health--;
+                            player.x -= 10; // Move player back slightly
+                            player.y -= 10; // Move player up slightly
+                            setTimeout(() => {
+                                player.y += 10; // Move player back down
+                            }, 100);
+                            updateHealth();
+                            lastHurtTime = now;  // Update last hurt time
+                            if (player.health <= 0) {
+                                gameOver = true;
+                                document.getElementById('game-over-screen').style.display = 'block';
+                                document.getElementById('bank-button').style.display = 'none';
+                                document.getElementById('end-and-bank-button').style.display = 'none';
+                                if (todayScore > allTimeTopScore) {
+                                    allTimeTopScore = todayScore;
+                                }
+                                saveScore();
+                                displayLeaderboard();
+                                return;
+                            }
                         }
                     }
                 }
@@ -799,10 +948,22 @@
             player.dy += player.gravity;
             player.y += player.dy;
 
-            // Prevent falling off the screen
+            // Ensure the player stays on the screen
             if (player.y + player.height > canvas.height - 25) {
                 player.y = canvas.height - player.height - 25;
                 player.jumpCount = 0;
+            }
+            if (player.y < 0) {
+                player.y = 0;
+                player.dy = 0;
+            }
+
+            // Ensure the player doesn't go off the left or right edge of the screen
+            if (player.x < 0) {
+                player.x = 0;
+            }
+            if (player.x + player.width > canvas.width) {
+                player.x = canvas.width - player.width;
             }
 
             // Generate new coins, obstacles, and clouds
