@@ -4,20 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aspect Ratio 9:19.5 Game</title>
-    <!-- Include Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
             background-color: black;
-            font-family: 'Press Start 2P', cursive; /* Apply the pixel font */
+            font-family: Arial, sans-serif;
         }
         .message {
             padding: 1vh;
             border-radius: 5px;
-            width: 90vw;
+            width: 90vw; /* Ensure it fits within the screen */
             text-align: center;
             position: absolute;
             left: 50%;
@@ -28,25 +26,25 @@
             display: none;
         }
         #sec-label, #bull-run-label, #message, #leverage-message, #bull-value, #bear-value {
-            top: 30%;
+            top: 30%; /* Positioned differently to avoid overlapping */
         }
         #sec-label {
-            top: 30%;
+            top: 30%; /* Adjusted position */
         }
         #bull-run-label {
-            top: 35%;
+            top: 35%; /* Adjusted position */
         }
         #message {
-            top: 40%;
+            top: 40%; /* Adjusted position */
         }
         #leverage-message {
-            top: 45%;
+            top: 45%; /* Adjusted position */
         }
         #bull-value {
-            top: 50%;
+            top: 50%; /* Adjusted position */
         }
         #bear-value {
-            top: 55%;
+            top: 55%; /* Adjusted position */
         }
         #game-over-screen {
             position: absolute;
@@ -59,8 +57,7 @@
             background-color: rgba(0, 0, 0, 0.8);
             padding: 2vh;
             border-radius: 10px;
-            width: 90vw;
-            font-family: 'Press Start 2P', cursive; /* Apply the pixel font */
+            width: 90vw; /* Ensure it fits within the screen */
         }
         #game-over {
             font-size: 5vh;
@@ -77,7 +74,6 @@
             text-align: center;
             padding: 20px;
             color: white;
-            font-family: 'Press Start 2P', cursive; /* Apply the pixel font */
         }
         .leaderboard-header {
             background-color: #333;
@@ -94,22 +90,6 @@
             font-size: 5vh;
             color: #FFD700;
         }
-        .score-tabs {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
-        }
-        .score-tabs div {
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 3vh;
-        }
-        .score-tabs div.active {
-            background-color: #FFD700;
-            color: black;
-            border-radius: 5px;
-        }
         .game-stats {
             margin-top: 20px;
             font-size: 3vh;
@@ -119,10 +99,8 @@
         }
         .buttons {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: space-around;
             margin-top: 20px;
-            position: relative;
         }
         .buttons button {
             padding: 10px 20px;
@@ -130,66 +108,37 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 3vh;
-            margin-bottom: 10px;
-        }
-        .add-extra-points {
-            background-color: #FFA500;
-            color: black;
         }
         .my-progress {
             background-color: #ADD8E6;
             color: black;
         }
-        .dropdown {
-            display: none;
-            position: absolute;
-            top: 60px;
-            background-color: #333;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 200px;
-            max-height: 150px;
-            overflow-y: auto; /* Make dropdown scrollable */
-        }
-        .dropdown button {
-            width: 100%;
-            padding: 10px;
-            background-color: #444;
-            color: white;
-            border: none;
-            border-radius: 0;
-            cursor: pointer;
-            text-align: left;
-            font-size: 3vh;
-        }
-        .dropdown button:hover {
-            background-color: #555;
-        }
-        #score {
+        #score, #health {
             position: absolute;
             top: 2vh;
-            left: 2vh;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 3vh;
             color: white;
-            z-index: 10;
+            text-align: center;
+            width: 90vw; /* Ensure it fits within the screen */
+            z-index: 10; /* Ensure these elements are on top */
         }
         #health {
+            top: 7vh; /* Positioned below the score */
+        }
+        #end-and-bank-button {
             position: absolute;
             top: 2vh;
             right: 2vh;
-            width: 200px;
-            height: 20px;
-            background-color: white;
-            border: 2px solid black;
-            border-radius: 10px;
-            overflow: hidden;
+            padding: 1vh 2vh;
+            font-size: 2vh;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             z-index: 10;
-        }
-        #health-bar {
-            height: 100%;
-            width: 100%;
-            background-color: green;
-            border-radius: 8px 0 0 8px;
         }
         #opening-page {
             position: absolute;
@@ -198,8 +147,8 @@
             transform: translate(-50%, -50%);
             color: white;
             text-align: center;
-            width: 90vw;
-            font-size: 3.5vh;
+            width: 90vw; /* Ensure it fits within the screen */
+            font-size: 3.5vh; /* Match the font size */
             font-weight: bold;
         }
         #yes-button, #no-button {
@@ -211,7 +160,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 1vh;
-            width: 40vw;
+            width: 40vw; /* Ensure it fits within the screen */
         }
         #characters {
             display: flex;
@@ -242,12 +191,11 @@
         <button id="yes-button" onclick="startGame()">Yes</button>
         <button id="no-button" onclick="showNoMessage()">No</button>
     </div>
-    <canvas id="gameCanvas"></canvas>
-    <div class="ground" id="ground"></div>
-    <div id="score">Score: 0</div>
-    <div id="health">
-        <div id="health-bar"></div>
-    </div>
+    <canvas id="gameCanvas" style="display:none;"></canvas>
+    <div class="ground" id="ground" style="display:none;"></div>
+    <div id="score" style="display:none;">Score: 0</div>
+    <div id="health" style="display:none;">Health: 10</div>
+    <button id="end-and-bank-button" style="display:none;" onclick="endAndBank()">End and Bank</button>
     <div id="sec-label" class="message">Watch out! They are coming</div>
     <div id="bull-run-label" class="message">Get Ready! You are approaching the Bull Run</div>
     <div id="message" class="message">Sam Bankman has stolen your crypto</div>
@@ -258,22 +206,12 @@
         <div id="game-over">Game Over</div>
         <div class="leaderboard-container">
             <div class="leaderboard-header">
-                My Wen Wallet
+                Leaderboard
             </div>
             <div class="score-section">
                 <h2 id="final-score">0</h2>
-                <div class="score-tabs">
-                    <div id="today-tab" class="active" onclick="updateScoreTab('today')">Today</div>
-                    <div id="all-time-tab" onclick="updateScoreTab('all-time')">All Time</div>
-                    <div id="leaderboard-tab" onclick="updateScoreTab('leaderboard')">Leaderboard</div>
-                </div>
             </div>
-            <div class="game-stats" id="game-stats">
-                <div>Verified Coins: <span id="total-coins">0</span></div>
-                <div>Shit Coins: <span id="biggest-combo">0x</span></div>
-                <div>Total Coins: <span id="level-reached">0</span></div>
-            </div>
-            <div id="leaderboard-section" class="game-stats" style="display: none;">
+            <div id="leaderboard-section" class="game-stats">
                 <table style="width: 100%; color: white;">
                     <thead>
                         <tr>
@@ -287,786 +225,728 @@
                 </table>
             </div>
             <div class="buttons">
-                <button class="add-extra-points" onclick="toggleDropdown()">Add Extra Points</button>
-                <div class="dropdown" id="dropdown-menu">
-                    <button id="twitter-share" onclick="shareOnTwitter()">Share on Twitter</button>
-                    <button id="discord-share" onclick="shareOnDiscord()">Share on Discord</button>
-                    <button id="telegram-share" onclick="shareOnTelegram()">Share on Telegram</button>
-                </div>
+                <button class="my-progress" onclick="shareWithFriends()">Share</button>
             </div>
         </div>
     </div>
+    <button id="bank-button" style="display:none;" onclick="bankCoins()">Bank Coins</button>
     <audio id="cashRegisterSound" src="https://freesound.org/data/previews/195/195138_2074484-lq.mp3" preload="auto"></audio>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-            function resizeCanvas() {
-                const aspectRatio = 11 / 19.5;
-                const windowAspectRatio = window.innerWidth / window.innerHeight;
-                if (windowAspectRatio < aspectRatio) {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerWidth / aspectRatio;
-                } else {
-                    canvas.height = window.innerHeight;
-                    canvas.width = window.innerHeight * aspectRatio;
-                }
-                canvas.style.marginTop = `${(window.innerHeight - canvas.height) / 2}px`;
-                canvas.style.marginLeft = `${(window.innerWidth - canvas.width) / 2}px`;
+        function resizeCanvas() {
+            const aspectRatio = 11 / 19.5; // Further adjusted aspect ratio for a larger view
+            const windowAspectRatio = window.innerWidth / window.innerHeight;
+            if (windowAspectRatio < aspectRatio) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerWidth / aspectRatio;
+            } else {
+                canvas.height = window.innerHeight;
+                canvas.width = window.innerHeight * aspectRatio;
             }
-            window.addEventListener('resize', resizeCanvas);
+            canvas.style.marginTop = `${(window.innerHeight - canvas.height) / 2}px`;
+            canvas.style.marginLeft = `${(window.innerWidth - canvas.width) / 2}px`;
+        }
+        window.addEventListener('resize', resizeCanvas);
 
-            const playerImg = new Image();
-            playerImg.src = "https://www.dropbox.com/scl/fi/vst3f1284optolu377rk6/Add-a-subheading-5.svg?rlkey=4vvnqmxq8qjcxw29rpv9uydv2&raw=1";
-            playerImg.onload = () => console.log('Player image loaded');
-            playerImg.onerror = () => console.error('Player image failed to load');
+        // Load images
+        const playerImg = new Image();
+        playerImg.src = "https://www.dropbox.com/scl/fi/vst3f1284optolu377rk6/Add-a-subheading-5.svg?rlkey=4vvnqmxq8qjcxw29rpv9uydv2&raw=1";
+        const goodCoinImg = new Image();
+        goodCoinImg.src = "https://www.dropbox.com/scl/fi/lpmmzradg397jl3uk0faf/Add-a-subheading-6.svg?rlkey=oyxoux29ln5qfjhm2chexir3d&raw=1";
+        const badCoinImg = new Image();
+        badCoinImg.src = "https://www.dropbox.com/scl/fi/ffprp1gne2k3qi9s65diq/Add-a-subheading-3.svg?rlkey=44ro7mwowu390lkjbyilkoqb8&raw=1";
+        const bullImg = new Image();
+        bullImg.src = "https://www.dropbox.com/scl/fi/dslt1d1kd7xwp6hypdgw8/.svg?rlkey=6g1snhasrq5fklpknwlsvpmes&raw=1";
+        const bearImg = new Image();
+        bearImg.src = "https://www.dropbox.com/scl/fi/73ioipk50ixg9qld604rs/Add-a-subheading-32.png?rlkey=f24ub3dcyz2wbokphi5pg2l12&raw=1";
+        const samBankmanImg = new Image();
+        samBankmanImg.src = "https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1";
 
-            const goodCoinImg = new Image();
-            goodCoinImg.src = "https://www.dropbox.com/scl/fi/lpmmzradg397jl3uk0faf/Add-a-subheading-6.svg?rlkey=oyxoux29ln5qfjhm2chexir3d&raw=1";
-            goodCoinImg.onload = () => console.log('Good coin image loaded');
-            goodCoinImg.onerror = () => console.error('Good coin image failed to load');
+        // Load sounds
+        const cashRegisterSound = document.getElementById('cashRegisterSound');
 
-            const badCoinImg = new Image();
-            badCoinImg.src = "https://www.dropbox.com/scl/fi/ffprp1gne2k3qi9s65diq/Add-a-subheading-3.svg?rlkey=44ro7mwowu390lkjbyilkoqb8&raw=1";
-            badCoinImg.onload = () => console.log('Bad coin image loaded');
-            badCoinImg.onerror = () => console.error('Bad coin image failed to load');
+        // Game variables
+        let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 10 };
+        let coins = [];
+        let obstacles = [];
+        let score = 0;
+        let bankedScore = 0;
+        let gameOver = false;
+        let clouds = [];
+        let currentTerrainIndex = 0;
+        let coinSpawnRate = 0.05;  // Initial coin spawn rate
+        let obstacleSpawnRate = 0.02;  // Initial obstacle spawn rate
+        let boostActive = false;
+        let boostDuration = 5000; // 5 seconds
+        let slowdownActive = false;
+        let slowdownDuration = 5000; // 5 seconds
+        let reducedPointsActive = false;
+        let reducedPointsDuration = 5000; // 5 seconds
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        let fencesAllowed = false;  // Flag to allow fences after 10 seconds
+        let doublePointsActive = false;
+        let bullTouched = false;
+        let lastTouchTime = 0;
+        let lastHurtTime = 0;  // Last time the player was hurt
+        let todayScore = 0;
+        let allTimeTopScore = 0;
 
-            const bullImg = new Image();
-            bullImg.src = "https://www.dropbox.com/scl/fi/dslt1d1kd7xwp6hypdgw8/.svg?rlkey=6g1snhasrq5fklpknwlsvpmes&raw=1";
-            bullImg.onload = () => console.log('Bull image loaded');
-            bullImg.onerror = () => console.error('Bull image failed to load');
+        const terrains = [
+            {
+                background: '#FFD700', // Desert
+                ground: 'linear-gradient(to top, #C2B280, #FFD700)',
+                obstacles: [{ type: 'cactus', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#87CEEB', // Sky
+                ground: 'linear-gradient(to top, #1E90FF, #87CEEB)',
+                obstacles: [{ type: 'cloud', y: canvas.height - 200, width: 100, height: 50 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#32CD32', // Jungle
+                ground: 'linear-gradient(to top, #228B22, #32CD32)',
+                obstacles: [{ type: 'tree', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#FF0000', // SEC (Bank)
+                ground: 'linear-gradient(to top, #8B0000, #FF0000)',
+                obstacles: [{ type: 'samBankman', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => 'bad' // Only generate bad coins
+            },
+            {
+                background: '#FFA500', // Bull Run
+                ground: 'linear-gradient(to top, #FFA500, #FF4500)',
+                obstacles: [{ type: 'bull', y: canvas.height - 150, width: 50, height: 50 }],
+                generateCoins: () => 'good' // Only generate good coins
+            },
+            {
+                background: '#A52A2A', // Bear Market
+                ground: 'linear-gradient(to top, #8B4513, #A52A2A)',
+                obstacles: [{ type: 'bear', y: canvas.height - 150, width: 50, height: 50 }],
+                generateCoins: () => 'bad' // Only generate bad coins
+            },
+            {
+                background: '#ADD8E6', // Glaciers
+                ground: 'linear-gradient(to top, #ADD8E6, #FFFFFF)',
+                obstacles: [{ type: 'glacier', y: canvas.height - 150, width: 50, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            },
+            {
+                background: '#FFDAB9', // Pyramids
+                ground: 'linear-gradient(to top, #C2B280, #FFDAB9)',
+                obstacles: [{ type: 'pyramid', y: canvas.height - 150, width: 100, height: 100 }],
+                generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
+            }
+        ];
 
-            const bearImg = new Image();
-            bearImg.src = "https://www.dropbox.com/scl/fi/73ioipk50ixg9qld604rs/Add-a-subheading-32.png?rlkey=f24ub3dcyz2wbokphi5pg2l12&raw=1";
-            bearImg.onload = () => console.log('Bear image loaded');
-            bearImg.onerror = () => console.error('Bear image failed to load');
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && player.jumpCount < 4) {
+                player.dy = -player.jumpPower;
+                player.jumpCount++;
+            }
+        });
 
-            const samBankmanImg = new Image();
-            samBankmanImg.src = "https://www.dropbox.com/scl/fi/tlsn0iioa257wbtf58lso/Add-a-subheading-29.png?rlkey=vwr7rc5m23ecjcc4dk443g9h4&raw=1";
-            samBankmanImg.onload = () => console.log('Sam Bankman image loaded');
-            samBankmanImg.onerror = () => console.error('Sam Bankman image failed to load');
+        // Mobile controls
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (player.jumpCount < 4) {
+                player.dy = -player.jumpPower;
+                player.jumpCount++;
+            }
+        });
 
-            const cashRegisterSound = document.getElementById('cashRegisterSound');
-
-            let player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 10, maxHealth: 10 };
-            let coins = [];
-            let obstacles = [];
-            let score = 0;
-            let bankedScore = 0;
-            let gameOver = false;
-            let clouds = [];
-            let currentTerrainIndex = 0;
-            let coinSpawnRate = 0.05;
-            let obstacleSpawnRate = 0.02;
-            let boostActive = false;
-            let boostDuration = 5000;
-            let slowdownActive = false;
-            let slowdownDuration = 5000;
-            let reducedPointsActive = false;
-            let reducedPointsDuration = 5000;
-            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            let fencesAllowed = false;
-            let doublePointsActive = false;
-            let bullTouched = false;
-            let lastTouchTime = 0;
-            let lastHurtTime = 0;
-            let todayScore = 0;
-            let allTimeTopScore = 0;
-
-            let twitterShared = false;
-            let discordShared = false;
-            let telegramShared = false;
-
-            const terrains = [
-                {
-                    background: '#FFD700',
-                    ground: 'linear-gradient(to top, #C2B280, #FFD700)',
-                    obstacles: [{ type: 'cactus', y: canvas.height - 150, width: 50, height: 100 }],
-                    generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
-                },
-                {
-                    background: '#87CEEB',
-                    ground: 'linear-gradient(to top, #1E90FF, #87CEEB)',
-                    obstacles: [{ type: 'cloud', y: canvas.height - 200, width: 100, height: 50 }],
-                    generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
-                },
-                {
-                    background: '#32CD32',
-                    ground: 'linear-gradient(to top, #228B22, #32CD32)',
-                    obstacles: [{ type: 'tree', y: canvas.height - 150, width: 50, height: 100 }],
-                    generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
-                },
-                {
-                    background: '#FF0000',
-                    ground: 'linear-gradient(to top, #8B0000, #FF0000)',
-                    obstacles: [{ type: 'samBankman', y: canvas.height - 150, width: 50, height: 100 }],
-                    generateCoins: () => 'bad'
-                },
-                {
-                    background: '#FFA500',
-                    ground: 'linear-gradient(to top, #FFA500, #FF4500)',
-                    obstacles: [{ type: 'bull', y: canvas.height - 150, width: 50, height: 50 }],
-                    generateCoins: () => 'good'
-                },
-                {
-                    background: '#A52A2A',
-                    ground: 'linear-gradient(to top, #8B4513, #A52A2A)',
-                    obstacles: [{ type: 'bear', y: canvas.height - 150, width: 50, height: 50 }],
-                    generateCoins: () => 'bad'
-                },
-                {
-                    background: '#ADD8E6',
-                    ground: 'linear-gradient(to top, #ADD8E6, #FFFFFF)',
-                    obstacles: [{ type: 'glacier', y: canvas.height - 150, width: 50, height: 100 }],
-                    generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
-                },
-                {
-                    background: '#FFDAB9',
-                    ground: 'linear-gradient(to top, #C2B280, #FFDAB9)',
-                    obstacles: [{ type: 'pyramid', y: canvas.height - 150, width: 100, height: 100 }],
-                    generateCoins: () => Math.random() < 0.1 ? 'bad' : 'good'
-                }
-            ];
-
-            function drawElement(ctx, x, y, width, height, type) {
-                if (type === 'cactus') {
-                    drawCactus(ctx, x, y, width, height);
-                } else if (type === 'cloud') {
-                    drawCloudObstacle(ctx, x, y, width, height);
-                } else if (type === 'tree') {
-                    drawTree(ctx, x, y, width, height);
-                } else if (type === 'bull') {
-                    drawBull(ctx, x, y, width, height);
-                } else if (type === 'bear') {
-                    drawBear(ctx, x, y, width, height);
-                } else if (type === 'samBankman') {
-                    drawSamBankman(ctx, x, y, width, height);
-                } else if (type === 'fence') {
-                    drawFence(ctx, x, y, width, height);
-                } else if (type === 'glacier') {
-                    drawGlacier(ctx, x, y, width, height);
-                } else if (type === 'pyramid') {
-                    drawPyramid(ctx, x, y, width, height);
+        // Double-click event to activate boost
+        canvas.addEventListener('click', (e) => {
+            const now = Date.now();
+            if (now - lastTouchTime < 300) {
+                if (bullTouched) {
+                    activateBoost();
+                    bullTouched = false; // Reset the flag after boost is activated
                 }
             }
+            lastTouchTime = now;
+        });
 
-            function drawCactus(ctx, x, y, width, height) {
-                ctx.fillStyle = '#228B22';
-                ctx.fillRect(x + width / 4, y, width / 2, height);
-                ctx.beginPath();
-                ctx.moveTo(x + width / 2, y);
-                ctx.lineTo(x + width / 2, y - height / 2);
-                ctx.stroke();
+        // Draw elements based on type
+        function drawElement(ctx, x, y, width, height, type) {
+            if (type === 'cactus') {
+                drawCactus(ctx, x, y, width, height);
+            } else if (type === 'cloud') {
+                drawCloudObstacle(ctx, x, y, width, height);
+            } else if (type === 'tree') {
+                drawTree(ctx, x, y, width, height);
+            } else if (type === 'bull') {
+                drawBull(ctx, x, y, width, height);
+            } else if (type === 'bear') {
+                drawBear(ctx, x, y, width, height);
+            } else if (type === 'samBankman') {
+                drawSamBankman(ctx, x, y, width, height);
+            } else if (type === 'fence') {
+                drawFence(ctx, x, y, width, height);
+            } else if (type === 'glacier') {
+                drawGlacier(ctx, x, y, width, height);
+            } else if (type === 'pyramid') {
+                drawPyramid(ctx, x, y, width, height);
             }
+        }
 
-            function drawTree(ctx, x, y, width, height) {
-                ctx.fillStyle = '#8B4513';
-                ctx.fillRect(x + width / 4, y, width / 2, height);
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x + width / 2, y - height / 2);
-                ctx.lineTo(x + width, y);
-                ctx.closePath();
-                ctx.fillStyle = '#228B22';
-                ctx.fill();
+        function drawCactus(ctx, x, y, width, height) {
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(x + width / 4, y, width / 2, height);
+            ctx.beginPath();
+            ctx.moveTo(x + width / 2, y);
+            ctx.lineTo(x + width / 2, y - height / 2);
+            ctx.stroke();
+        }
+
+        function drawTree(ctx, x, y, width, height) {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x + width / 4, y, width / 2, height);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width / 2, y - height / 2);
+            ctx.lineTo(x + width, y);
+            ctx.closePath();
+            ctx.fillStyle = '#228B22';
+            ctx.fill();
+        }
+
+        function drawCloud(ctx, x, y, width, height) {
+            ctx.beginPath();
+            ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + width / 2, y - height / 4, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + (3 * width) / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+        }
+
+        function drawCloudObstacle(ctx, x, y, width, height) {
+            ctx.beginPath();
+            ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + width / 2, y - height / 4, width / 4, 0, Math.PI * 2);
+            ctx.arc(x + (3 * width) / 4, y, width / 4, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+        }
+
+        function drawBull(ctx, x, y, width, height) {
+            ctx.drawImage(bullImg, x, y, width, height);
+        }
+
+        function drawBear(ctx, x, y, width, height) {
+            ctx.drawImage(bearImg, x, y, width, height);
+        }
+
+        function drawSamBankman(ctx, x, y, width, height) {
+            ctx.drawImage(samBankmanImg, x, y, width, height);
+        }
+
+        function drawFence(ctx, x, y, width, height) {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x, y, width, height);
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(x + 5, y - 10, width - 10, 10);
+        }
+
+        function drawGlacier(ctx, x, y, width, height) {
+            ctx.fillStyle = '#87CEEB';
+            ctx.beginPath();
+            ctx.moveTo(x, y + height);
+            ctx.lineTo(x + width / 2, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawPyramid(ctx, x, y, width, height) {
+            ctx.fillStyle = '#DAA520';
+            ctx.beginPath();
+            ctx.moveTo(x, y + height);
+            ctx.lineTo(x + width / 2, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawRoad() {
+            const roadHeight = 25;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, canvas.height - roadHeight, canvas.width, roadHeight);
+
+            const stripeWidth = 10;
+            const stripeHeight = 10;
+            const stripeSpacing = 20;
+            ctx.fillStyle = '#FFF';
+
+            for (let x = 0; x < canvas.width; x += stripeWidth + stripeSpacing) {
+                ctx.fillRect(x, canvas.height - roadHeight / 2 - stripeHeight / 2, stripeWidth, stripeHeight);
             }
+        }
 
-            function drawCloud(ctx, x, y, width, height) {
-                ctx.beginPath();
-                ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
-                ctx.arc(x + width / 2, y - height / 4, width / 4, 0, Math.PI * 2);
-                ctx.arc(x + (3 * width) / 4, y, width / 4, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fill();
+        // Update score display
+        function updateScore() {
+            document.getElementById('score').innerText = `Score: ${score + bankedScore}`;
+        }
+
+        // Update health display
+        function updateHealth() {
+            document.getElementById('health').innerText = `Health: ${player.health}`;
+        }
+
+        // Show message on screen for a short duration
+        function showMessage(text, duration = 3000) {
+            const messageElement = document.getElementById('message');
+            messageElement.innerText = text;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, duration);
+        }
+
+        // Show bull value on screen for a short duration
+        function showBullValue(value, duration = 2000) {
+            const bullValueElement = document.getElementById('bull-value');
+            bullValueElement.innerText = value;
+            bullValueElement.style.display = 'block';
+            setTimeout(() => {
+                bullValueElement.style.display = 'none';
+            }, duration);
+        }
+
+        // Show bear value on screen for a short duration
+        function showBearValue(value, duration = 2000) {
+            const bearValueElement = document.getElementById('bear-value');
+            bearValueElement.innerText = value;
+            bearValueElement.style.display = 'block';
+            setTimeout(() => {
+                bearValueElement.style.display = 'none';
+            }, duration);
+        }
+
+        // Show SEC label
+        function showSecLabel() {
+            const secLabel = document.getElementById('sec-label');
+            secLabel.style.display = 'block';
+            setTimeout(() => {
+                secLabel.style.display = 'none';
+            }, 1500); // Show for 1.5 seconds
+        }
+
+        // Show Bull Run label
+        function showBullRunLabel() {
+            const bullRunLabel = document.getElementById('bull-run-label');
+            bullRunLabel.style.display = 'block';
+            setTimeout(() => {
+                bullRunLabel.style.display = 'none';
+            }, 1500); // Show for 1.5 seconds
+        }
+
+        // Show Sam Bankman message
+        function showSamMessage() {
+            const messageElement = document.getElementById('message');
+            messageElement.innerText = "Sam Bankman has stolen your crypto";
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 1500); // Show for 1.5 seconds
+        }
+
+        // Show leverage message
+        function showLeverageMessage() {
+            const leverageMessage = document.getElementById('leverage-message');
+            leverageMessage.style.display = 'block';
+            setTimeout(() => {
+                leverageMessage.style.display = 'none';
+            }, 2000); // Show for 2 seconds
+        }
+
+        // Change terrain
+        function changeTerrain() {
+            currentTerrainIndex = (currentTerrainIndex + 1) % terrains.length;
+            const newTerrain = terrains[currentTerrainIndex];
+            canvas.style.background = newTerrain.background;
+            document.getElementById('ground').style.background = newTerrain.ground;
+
+            // Show SEC or Bull Run label if the current terrain is SEC or Bull Run
+            if (newTerrain.background === '#FF0000') {
+                showSecLabel();
+                showMessage("Watch out! They are coming");
+            } else if (newTerrain.background === '#FFA500') {
+                showBullRunLabel();
+                showMessage("Get Ready! You are approaching the Bull Run");
             }
+        }
 
-            function drawCloudObstacle(ctx, x, y, width, height) {
-                ctx.beginPath();
-                ctx.arc(x + width / 4, y, width / 4, 0, Math.PI * 2);
-                ctx.arc(x + width / 2, y - height / 4, width / 4, 0, Math.PI * 2);
-                ctx.arc(x + (3 * width) / 4, y, width / 4, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fill();
+        // Set interval to change terrain every 10 seconds
+        setInterval(changeTerrain, 10000);
+
+        // Allow fences after 10 seconds
+        setTimeout(() => {
+            fencesAllowed = true;
+        }, 10000);
+
+        // Increase difficulty over time
+        setInterval(() => {
+            coinSpawnRate += 0.01;  // Increase coin spawn rate
+            obstacleSpawnRate += 0.005;  // Increase obstacle spawn rate
+            player.speed += 0.5;  // Increase player speed
+        }, 10000);
+
+        function activateBoost() {
+            if (boostActive) return;
+            boostActive = true;
+            const originalSpeed = player.speed;
+            console.log("Boost activated, original speed:", originalSpeed);
+            player.speed *= 2;
+            console.log("New speed:", player.speed);
+
+            setTimeout(() => {
+                player.speed = originalSpeed;
+                boostActive = false;
+                console.log("Boost ended, speed reset to:", player.speed);
+            }, boostDuration);
+        }
+
+        function activateSlowdown() {
+            if (slowdownActive) return;
+            slowdownActive = true;
+            const originalSpeed = player.speed;
+            console.log("Slowdown activated, original speed:", originalSpeed);
+            player.speed /= 2;
+            console.log("New speed:", player.speed);
+
+            setTimeout(() => {
+                player.speed = originalSpeed;
+                slowdownActive = false;
+                console.log("Slowdown ended, speed reset to:", player.speed);
+            }, slowdownDuration);
+        }
+
+        function activateReducedPoints() {
+            if (reducedPointsActive) return;
+            reducedPointsActive = true;
+            console.log("Reduced points activated");
+
+            setTimeout(() => {
+                reducedPointsActive = false;
+                console.log("Reduced points ended");
+            }, reducedPointsDuration);
+        }
+
+        function activateDoublePoints() {
+            if (doublePointsActive) return;
+            doublePointsActive = true;
+            console.log("Double points activated");
+
+            setTimeout(() => {
+                doublePointsActive = false;
+                console.log("Double points ended");
+            }, boostDuration);
+        }
+
+        // Bank coins
+        function bankCoins() {
+            bankedScore += score;
+            todayScore += score;
+            score = 0;
+            updateScore();
+            showMessage("Coins banked successfully!", 2000);
+        }
+
+        // Display leaderboard
+        function displayLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = '';
+            leaderboard.sort((a, b) => b.score - a.score).forEach((entry, index) => {
+                const listItem = document.createElement('tr');
+                listItem.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
+                leaderboardList.appendChild(listItem);
+            });
+        }
+
+        // Save score to leaderboard
+        function saveScore() {
+            const playerName = prompt('Game Over! Enter your name:');
+            if (playerName) {
+                const today = new Date().toLocaleDateString();
+                leaderboard.push({ name: playerName, score: bankedScore, date: today });
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
             }
+        }
 
-            function drawBull(ctx, x, y, width, height) {
-                ctx.drawImage(bullImg, x, y, width, height);
+        function shareWithFriends() {
+            const shareText = `I scored ${todayScore} points in this awesome game! Can you beat my score?`;
+            const url = window.location.href;
+            const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareText)}`;
+            const discordUrl = `https://discord.com/channels/@me?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareText)}`;
+
+            const shareWindowFeatures = 'height=600,width=800,resizable,scrollbars';
+
+            // Open share dialogs
+            window.open(twitterUrl, 'Share on Twitter', shareWindowFeatures);
+            window.open(discordUrl, 'Share on Discord', shareWindowFeatures);
+        }
+
+        function endAndBank() {
+            bankedScore += score;
+            todayScore += score;
+            score = 0;
+            gameOver = true;
+            updateScore();
+            document.getElementById('game-over-screen').style.display = 'block';
+            document.getElementById('bank-button').style.display = 'none';
+            document.getElementById('end-and-bank-button').style.display = 'none';
+            if (todayScore > allTimeTopScore) {
+                allTimeTopScore = todayScore;
             }
+            saveScore();
+            displayLeaderboard();
+        }
 
-            function drawBear(ctx, x, y, width, height) {
-                ctx.drawImage(bearImg, x, y, width, height);
-            }
+        function startGame() {
+            console.log("Game is starting..."); // Add this line for debugging
+            document.getElementById('opening-page').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('ground').style.display = 'block';
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('health').style.display = 'block';
+            document.getElementById('bank-button').style.display = 'block';
+            document.getElementById('end-and-bank-button').style.display = 'block';
+            resizeCanvas();
+            changeTerrain(); // Initialize with the first terrain
+            gameLoop();
+        }
 
-            function drawSamBankman(ctx, x, y, width, height) {
-                ctx.drawImage(samBankmanImg, x, y, width, height);
-            }
+        function showNoMessage() {
+            alert("You chose not to enter the world of wen. The game will not start.");
+        }
 
-            function drawFence(ctx, x, y, width, height) {
-                ctx.fillStyle = '#8B4513';
-                ctx.fillRect(x, y, width, height);
-                ctx.fillStyle = '#A0522D';
-                ctx.fillRect(x + 5, y - 10, width - 10, 10);
-            }
+        function restartGame() {
+            // Reset game variables
+            player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 10 };
+            coins = [];
+            obstacles = [];
+            score = 0;
+            bankedScore = 0;
+            gameOver = false;
+            clouds = [];
+            currentTerrainIndex = 0;
+            coinSpawnRate = 0.05;  // Initial coin spawn rate
+            obstacleSpawnRate = 0.02;  // Initial obstacle spawn rate
+            boostActive = false;
+            slowdownActive = false;
+            reducedPointsActive = false;
+            doublePointsActive = false;
+            fencesAllowed = false;
+            bullTouched = false;
+            lastTouchTime = 0;
+            lastHurtTime = 0;  // Reset the last hurt time
 
-            function drawGlacier(ctx, x, y, width, height) {
-                ctx.fillStyle = '#87CEEB';
-                ctx.beginPath();
-                ctx.moveTo(x, y + height);
-                ctx.lineTo(x + width / 2, y);
-                ctx.lineTo(x + width, y + height);
-                ctx.closePath();
-                ctx.fill();
-            }
+            // Hide game over screen
+            document.getElementById('game-over-screen').style.display = 'none';
 
-            function drawPyramid(ctx, x, y, width, height) {
-                ctx.fillStyle = '#DAA520';
-                ctx.beginPath();
-                ctx.moveTo(x, y + height);
-                ctx.lineTo(x + width / 2, y);
-                ctx.lineTo(x + width, y + height);
-                ctx.closePath();
-                ctx.fill();
-            }
+            // Restart game loop
+            changeTerrain();
+            gameLoop();
 
-            function drawRoad() {
-                const roadHeight = 25;
-                ctx.fillStyle = '#333';
-                ctx.fillRect(0, canvas.height - roadHeight, canvas.width, roadHeight);
-
-                const stripeWidth = 10;
-                const stripeHeight = 10;
-                const stripeSpacing = 20;
-                ctx.fillStyle = '#FFF';
-
-                for (let x = 0; x < canvas.width; x += stripeWidth + stripeSpacing) {
-                    ctx.fillRect(x, canvas.height - roadHeight / 2 - stripeHeight / 2, stripeWidth, stripeHeight);
-                }
-            }
-
-            function updateScore() {
-                document.getElementById('score').innerText = `Score: ${score + bankedScore}`;
-            }
-
-            function updateHealth() {
-                const healthBar = document.getElementById('health-bar');
-                const healthPercentage = (player.health / player.maxHealth) * 100;
-                healthBar.style.width = `${healthPercentage}%`;
-                if (healthPercentage > 60) {
-                    healthBar.style.backgroundColor = 'green';
-                } else if (healthPercentage > 30) {
-                    healthBar.style.backgroundColor = 'yellow';
-                } else {
-                    healthBar.style.backgroundColor = 'red';
-                }
-            }
-
-            function showMessage(text, duration = 3000) {
-                const messageElement = document.getElementById('message');
-                messageElement.innerText = text;
-                messageElement.style.display = 'block';
-                setTimeout(() => {
-                    messageElement.style.display = 'none';
-                }, duration);
-            }
-
-            function showBullValue(value, duration = 2000) {
-                const bullValueElement = document.getElementById('bull-value');
-                bullValueElement.innerText = value;
-                bullValueElement.style.display = 'block';
-                setTimeout(() => {
-                    bullValueElement.style.display = 'none';
-                }, duration);
-            }
-
-            function showBearValue(value, duration = 2000) {
-                const bearValueElement = document.getElementById('bear-value');
-                bearValueElement.innerText = value;
-                bearValueElement.style.display = 'block';
-                setTimeout(() => {
-                    bearValueElement.style.display = 'none';
-                }, duration);
-            }
-
-            function showSecLabel() {
-                const secLabel = document.getElementById('sec-label');
-                secLabel.style.display = 'block';
-                setTimeout(() => {
-                    secLabel.style.display = 'none';
-                }, 1500);
-            }
-
-            function showBullRunLabel() {
-                const bullRunLabel = document.getElementById('bull-run-label');
-                bullRunLabel.style.display = 'block';
-                setTimeout(() => {
-                    bullRunLabel.style.display = 'none';
-                }, 1500);
-            }
-
-            function showSamMessage() {
-                const messageElement = document.getElementById('message');
-                messageElement.innerText = "Sam Bankman has stolen your crypto";
-                messageElement.style.display = 'block';
-                setTimeout(() => {
-                    messageElement.style.display = 'none';
-                }, 1500);
-            }
-
-            function showLeverageMessage() {
-                const leverageMessage = document.getElementById('leverage-message');
-                leverageMessage.style.display = 'block';
-                setTimeout(() => {
-                    leverageMessage.style.display = 'none';
-                }, 2000);
-            }
-
-            function changeTerrain() {
-                currentTerrainIndex = (currentTerrainIndex + 1) % terrains.length;
-                const newTerrain = terrains[currentTerrainIndex];
-                canvas.style.background = newTerrain.background;
-                document.getElementById('ground').style.background = newTerrain.ground;
-
-                if (newTerrain.background === '#FF0000') {
-                    showSecLabel();
-                    showMessage("Watch out! They are coming");
-                } else if (newTerrain.background === '#FFA500') {
-                    showBullRunLabel();
-                    showMessage("Get Ready! You are approaching the Bull Run");
-                }
-            }
-
-            setInterval(changeTerrain, 10000);
-
+            // Re-allow fences after 10 seconds
             setTimeout(() => {
                 fencesAllowed = true;
             }, 10000);
+        }
 
-            setInterval(() => {
-                coinSpawnRate += 0.01;
-                obstacleSpawnRate += 0.005;
-                player.speed += 0.5;
-            }, 10000);
+        // Game loop
+        function gameLoop() {
+            if (gameOver) return;
 
-            function activateBoost() {
-                if (boostActive) return;
-                boostActive = true;
-                const originalSpeed = player.speed;
-                player.speed *= 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                setTimeout(() => {
-                    player.speed = originalSpeed;
-                    boostActive = false;
-                }, boostDuration);
-            }
+            // Draw road
+            drawRoad();
 
-            function activateSlowdown() {
-                if (slowdownActive) return;
-                slowdownActive = true;
-                const originalSpeed = player.speed;
-                player.speed /= 2;
+            // Draw clouds
+            clouds.forEach(cloud => {
+                drawCloud(ctx, cloud.x, cloud.y, cloud.width, cloud.height);
+                cloud.x -= cloud.speed;
 
-                setTimeout(() => {
-                    player.speed = originalSpeed;
-                    slowdownActive = false;
-                }, slowdownDuration);
-            }
-
-            function activateReducedPoints() {
-                if (reducedPointsActive) return;
-                reducedPointsActive = true;
-
-                setTimeout(() => {
-                    reducedPointsActive = false;
-                }, reducedPointsDuration);
-            }
-
-            function activateDoublePoints() {
-                if (doublePointsActive) return;
-                doublePointsActive = true;
-
-                setTimeout(() => {
-                    doublePointsActive = false;
-                }, boostDuration);
-            }
-
-            function bankCoins() {
-                bankedScore += score;
-                todayScore += score;
-                score = 0;
-                updateScore();
-                transitionToLeaderboard();
-            }
-
-            function transitionToLeaderboard() {
-                document.getElementById('gameCanvas').style.display = 'none';
-                document.getElementById('ground').style.display = 'none';
-                document.getElementById('score').style.display = 'none';
-                document.getElementById('health').style.display = 'none';
-                document.getElementById('game-over-screen').style.display = 'block';
-                displayLeaderboard();
-            }
-
-            function displayLeaderboard() {
-                const leaderboardList = document.getElementById('leaderboard-list');
-                leaderboardList.innerHTML = '';
-                leaderboard.sort((a, b) => b.score - a.score).forEach((entry, index) => {
-                    const listItem = document.createElement('tr');
-                    listItem.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
-                    leaderboardList.appendChild(listItem);
-                });
-            }
-
-            function saveScore() {
-                const playerName = localStorage.getItem('playerName');
-                if (playerName) {
-                    const today = new Date().toLocaleDateString();
-                    leaderboard.push({ name: playerName, score: bankedScore, date: today });
-                    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-                }
-            }
-
-            function addPoints(points) {
-                bankedScore += points;
-                updateScore();
-                showMessage(`${points} points added!`, 2000);
-            }
-
-            function shareOnTwitter() {
-                if (!twitterShared) {
-                    twitterShared = true;
-                    addPoints(100);
-                    // Add your code to share on Twitter here
-                    alert('Shared on Twitter!');
-                } else {
-                    alert('You have already shared on Twitter this game.');
-                }
-            }
-
-            function shareOnDiscord() {
-                if (!discordShared) {
-                    discordShared = true;
-                    addPoints(100);
-                    // Add your code to share on Discord here
-                    alert('Shared on Discord!');
-                } else {
-                    alert('You have already shared on Discord this game.');
-                }
-            }
-
-            function shareOnTelegram() {
-                if (!telegramShared) {
-                    telegramShared = true;
-                    addPoints(100);
-                    // Add your code to share on Telegram here
-                    alert('Shared on Telegram!');
-                } else {
-                    alert('You have already shared on Telegram this game.');
-                }
-            }
-
-            function toggleDropdown() {
-                const dropdown = document.getElementById('dropdown-menu');
-                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-            }
-
-            function updateScoreTab(tab) {
-                document.getElementById('today-tab').classList.remove('active');
-                document.getElementById('all-time-tab').classList.remove('active');
-                document.getElementById('leaderboard-tab').classList.remove('active');
-                document.getElementById(`${tab}-tab`).classList.add('active');
-
-                if (tab === 'today') {
-                    document.getElementById('final-score').innerText = todayScore;
-                    document.getElementById('game-stats').style.display = 'block';
-                    document.getElementById('leaderboard-section').style.display = 'none';
-                } else if (tab === 'all-time') {
-                    document.getElementById('final-score').innerText = allTimeTopScore;
-                    document.getElementById('game-stats').style.display = 'block';
-                    document.getElementById('leaderboard-section').style.display = 'none';
-                } else if (tab === 'leaderboard') {
-                    displayLeaderboard();
-                    document.getElementById('game-stats').style.display = 'none';
-                    document.getElementById('leaderboard-section').style.display = 'block';
-                }
-            }
-
-            function endAndBank() {
-                bankedScore += score;
-                todayScore += score;
-                score = 0;
-                gameOver = true;
-                updateScore();
-                document.getElementById('game-over-screen').style.display = 'block';
-                document.getElementById('bank-button').style.display = 'none';
-                document.getElementById('end-and-bank-button').style.display = 'none';
-                if (todayScore > allTimeTopScore) {
-                    allTimeTopScore = todayScore;
-                }
-                saveScore();
-                displayLeaderboard();
-            }
-
-            window.startGame = function() {
-                const storedName = localStorage.getItem('playerName');
-                if (!storedName) {
-                    document.getElementById('name-input-container').style.display = 'block';
-                } else {
-                    document.getElementById('opening-page').style.display = 'none';
-                    document.getElementById('gameCanvas').style.display = 'block';
-                    document.getElementById('ground').style.display = 'block';
-                    document.getElementById('score').style.display = 'block';
-                    document.getElementById('health').style.display = 'block';
-                    resizeCanvas();
-                    changeTerrain();
-                    gameLoop();
-                }
-            }
-
-            window.showNoMessage = function() {
-                alert("You chose not to enter the world of wen. The game will not start.");
-            }
-
-            window.restartGame = function() {
-                player = { x: 5, y: canvas.height - 75 - 25, width: 75, height: 75, speed: 5, dy: 0, gravity: 0.5, jumpPower: 12, jumpCount: 0, health: 10, maxHealth: 10 };
-                coins = [];
-                obstacles = [];
-                score = 0;
-                bankedScore = 0;
-                gameOver = false;
-                clouds = [];
-                currentTerrainIndex = 0;
-                coinSpawnRate = 0.05;
-                obstacleSpawnRate = 0.02;
-                boostActive = false;
-                slowdownActive = false;
-                reducedPointsActive = false;
-                doublePointsActive = false;
-                fencesAllowed = false;
-                bullTouched = false;
-                lastTouchTime = 0;
-                lastHurtTime = 0;
-
-                twitterShared = false;
-                discordShared = false;
-                telegramShared = false;
-
-                document.getElementById('game-over-screen').style.display = 'none';
-
-                changeTerrain();
-                gameLoop();
-
-                setTimeout(() => {
-                    fencesAllowed = true;
-                }, 10000);
-            }
-
-            document.addEventListener('keydown', (e) => {
-                if ((e.code === 'Space' || e.code === 'ArrowUp') && player.jumpCount < 4) {
-                    player.dy = -player.jumpPower;
-                    player.jumpCount++;
+                // Remove cloud if it goes off screen
+                if (cloud.x + cloud.width < 0) {
+                    clouds = clouds.filter(c => c !== cloud);
                 }
             });
 
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                if (player.jumpCount < 4) {
-                    player.dy = -player.jumpPower;
-                    player.jumpCount++;
-                }
-            });
+            // Draw player
+            ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 
-            canvas.addEventListener('click', (e) => {
-                const now = Date.now();
-                if (now - lastTouchTime < 300) {
-                    if (bullTouched) {
-                        activateBoost();
-                        bullTouched = false;
+            // Draw coins and obstacles
+            coins.forEach(coin => {
+                const coinImg = coin.type === 'good' ? goodCoinImg : badCoinImg;
+                ctx.drawImage(coinImg, coin.x, coin.y, coin.size, coin.size);
+                coin.x -= coin.speed;
+
+                // Collision detection with player
+                if (player.x < coin.x + coin.size &&
+                    player.x + player.width > coin.x &&
+                    player.y < coin.y + coin.size &&
+                    player.y + player.height > coin.y) {
+                    if (coin.type === 'good') {
+                        score += reducedPointsActive ? 5 : doublePointsActive ? 20 : 10;
+                        cashRegisterSound.play();  // Play the cash register sound
+                    } else {
+                        score -= reducedPointsActive ? 5 : doublePointsActive ? 20 : 10;
+                        if (score < 0) score = 0;
                     }
+                    updateScore();
+                    coins = coins.filter(c => c !== coin);
                 }
-                lastTouchTime = now;
             });
 
-            function gameLoop() {
-                if (gameOver) return;
+            obstacles.forEach(obstacle => {
+                drawElement(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type);
+                obstacle.x -= obstacle.speed;
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Show message for fences
+                if (obstacle.type === 'fence' && !obstacle.messageShown) {
+                    showLeverageMessage();
+                    obstacle.messageShown = true; // Mark that the message has been shown
+                }
 
-                drawRoad();
-
-                clouds.forEach(cloud => {
-                    drawCloud(ctx, cloud.x, cloud.y, cloud.width, cloud.height);
-                    cloud.x -= cloud.speed;
-
-                    if (cloud.x + cloud.width < 0) {
-                        clouds = clouds.filter(c => c !== cloud);
+                // Collision detection with player for bulls and bears
+                if ((obstacle.type === 'bull' || obstacle.type === 'bear') &&
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    if (obstacle.type === 'bull') {
+                        bullTouched = true;
+                        showBullValue("Bull Touched! Double-click to boost!");
                     }
-                });
+                    if (obstacle.type === 'bear') {
+                        activateSlowdown(); // Activate slowdown
+                        showBearValue("Bear Touched! Speed reduced!");
+                    }
+                    obstacles = obstacles.filter(o => o !== obstacle);
+                }
 
-                ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-
-                coins.forEach(coin => {
-                    const coinImg = coin.type === 'good' ? goodCoinImg : badCoinImg;
-                    ctx.drawImage(coinImg, coin.x, coin.y, coin.size, coin.size);
-                    coin.x -= coin.speed;
-
-                    if (player.x < coin.x + coin.size &&
-                        player.x + player.width > coin.x &&
-                        player.y < coin.y + coin.size &&
-                        player.y + player.height > coin.y) {
-                        if (coin.type === 'good') {
-                            score += reducedPointsActive ? 5 : doublePointsActive ? 20 : 10;
-                            cashRegisterSound.play();
+                // Reduce health if collision with non-bull and non-cloud obstacle
+                if (obstacle.type !== 'bull' && obstacle.type !== 'bear' && obstacle.type !== 'cloud' &&
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    const now = Date.now();
+                    if (now - lastHurtTime > 3000) {  // 3-second cooldown
+                        if (obstacle.type === 'samBankman') {
+                            score = Math.floor(score / 2); // Reduce score by half
+                            updateScore();
+                            showSamMessage(); // Show Sam Bankman message
+                            obstacles = obstacles.filter(o => o !== obstacle);
                         } else {
-                            score -= reducedPointsActive ? 5 : doublePointsActive ? 20 : 10;
-                            if (score < 0) score = 0;
-                        }
-                        updateScore();
-                        coins = coins.filter(c => c !== coin);
-                    }
-                });
-
-                obstacles.forEach(obstacle => {
-                    drawElement(ctx, obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type);
-                    obstacle.x -= obstacle.speed;
-
-                    if (obstacle.type === 'fence' && !obstacle.messageShown) {
-                        showLeverageMessage();
-                        obstacle.messageShown = true;
-                    }
-
-                    if ((obstacle.type === 'bull' || obstacle.type === 'bear') &&
-                        player.x < obstacle.x + obstacle.width &&
-                        player.x + player.width > obstacle.x &&
-                        player.y < obstacle.y + obstacle.height &&
-                        player.y + player.height > obstacle.y) {
-                        if (obstacle.type === 'bull') {
-                            bullTouched = true;
-                            showBullValue("Bull Touched! Double-click to boost!");
-                        }
-                        if (obstacle.type === 'bear') {
-                            activateSlowdown();
-                            showBearValue("Bear Touched! Speed reduced!");
-                        }
-                        obstacles = obstacles.filter(o => o !== obstacle);
-                    }
-
-                    if (obstacle.type !== 'bull' && obstacle.type !== 'bear' && obstacle.type !== 'cloud' &&
-                        player.x < obstacle.x + obstacle.width &&
-                        player.x + player.width > obstacle.x &&
-                        player.y < obstacle.y + obstacle.height &&
-                        player.y + player.height > obstacle.y) {
-                        const now = Date.now();
-                        if (now - lastHurtTime > 3000) {
-                            if (obstacle.type === 'samBankman') {
-                                score = Math.floor(score / 2);
-                                updateScore();
-                                showSamMessage();
-                                obstacles = obstacles.filter(o => o !== obstacle);
-                            } else {
-                                player.health--;
-                                player.x -= 10;
-                                player.y -= 10;
-                                setTimeout(() => {
-                                    player.y += 10;
-                                }, 100);
-                                updateHealth();
-                                lastHurtTime = now;
-                                if (player.health <= 0) {
-                                    gameOver = true;
-                                    showGameOverScreen();
-                                    return;
+                            player.health--;
+                            player.x -= 10; // Move player back slightly
+                            player.y -= 10; // Move player up slightly
+                            setTimeout(() => {
+                                player.y += 10; // Move player back down
+                            }, 100);
+                            updateHealth();
+                            lastHurtTime = now;  // Update last hurt time
+                            if (player.health <= 0) {
+                                gameOver = true;
+                                document.getElementById('game-over-screen').style.display = 'block';
+                                document.getElementById('bank-button').style.display = 'none';
+                                document.getElementById('end-and-bank-button').style.display = 'none';
+                                if (todayScore > allTimeTopScore) {
+                                    allTimeTopScore = todayScore;
                                 }
+                                saveScore();
+                                displayLeaderboard();
+                                return;
                             }
                         }
                     }
+                }
+            });
+
+            // Apply gravity
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            // Ensure the player stays on the screen
+            if (player.y + player.height > canvas.height - 25) {
+                player.y = canvas.height - player.height - 25;
+                player.jumpCount = 0;
+            }
+            if (player.y < 0) {
+                player.y = 0;
+                player.dy = 0;
+            }
+
+            // Ensure the player doesn't go off the left or right edge of the screen
+            if (player.x < 0) {
+                player.x = 0;
+            }
+            if (player.x + player.width > canvas.width) {
+                player.x = canvas.width - player.width;
+            }
+
+            // Generate new coins, obstacles, and clouds
+            if (Math.random() < coinSpawnRate) {
+                const coinType = terrains[currentTerrainIndex].generateCoins();
+                coins.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height - 200),
+                    size: 20,
+                    speed: 5,
+                    type: coinType
                 });
+            }
 
-                player.dy += player.gravity;
-                player.y += player.dy;
+            if (Math.random() < obstacleSpawnRate) {
+                const obstacleTypes = ['cactus', 'cloud', 'tree', 'bull', 'bear', 'samBankman', 'glacier', 'pyramid'];
+                const obstacleType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+                const yPosition = canvas.height - 50 - 25; // Default position on the road
 
-                if (player.y + player.height > canvas.height - 25) {
-                    player.y = canvas.height - player.height - 25;
-                    player.jumpCount = 0;
-                }
-                if (player.y < 0) {
-                    player.y = 0;
-                    player.dy = 0;
-                }
-
-                if (player.x < 0) {
-                    player.x = 0;
-                }
-                if (player.x + player.width > canvas.width) {
-                    player.x = canvas.width - player.width;
-                }
-
-                if (Math.random() < coinSpawnRate) {
-                    const coinType = terrains[currentTerrainIndex].generateCoins();
-                    coins.push({
+                if (obstacleType === 'bear' || obstacleType === 'bull') {
+                    obstacles.push({
                         x: canvas.width,
-                        y: Math.random() * (canvas.height - 200),
-                        size: 20,
-                        speed: 5,
-                        type: coinType
-                    });
-                }
-
-                if (Math.random() < obstacleSpawnRate) {
-                    const obstacleTypes = ['cactus', 'cloud', 'tree', 'bull', 'bear', 'samBankman', 'glacier', 'pyramid'];
-                    const obstacleType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
-                    const yPosition = canvas.height - 50 - 25;
-
-                    if (obstacleType === 'bear' || obstacleType === 'bull') {
-                        obstacles.push({
-                            x: canvas.width,
-                            y: Math.random() * (canvas.height - 100),
-                            width: 50,
-                            height: 50,
-                            speed: 5,
-                            type: obstacleType
-                        });
-                    } else {
-                        obstacles.push({
-                            x: canvas.width,
-                            y: yPosition,
-                            width: 50,
-                            height: 50,
-                            speed: 5,
-                            type: obstacleType
-                        });
-                    }
-                }
-
-                if (Math.random() < 0.01) {
-                    clouds.push({
-                        x: canvas.width,
-                        y: Math.random() * (canvas.height / 2),
-                        width: 100,
+                        y: Math.random() * (canvas.height - 100), // Random vertical position for bears and bulls
+                        width: 50,
                         height: 50,
-                        speed: 2
+                        speed: 5,
+                        type: obstacleType
+                    });
+                } else {
+                    obstacles.push({
+                        x: canvas.width,
+                        y: yPosition,
+                        width: 50,
+                        height: 50,
+                        speed: 5,
+                        type: obstacleType
                     });
                 }
-
-                requestAnimationFrame(gameLoop);
             }
 
-            function showGameOverScreen() {
-                document.getElementById('game-over-screen').style.display = 'block';
-                if (todayScore > allTimeTopScore) {
-                    allTimeTopScore = todayScore;
-                }
-                saveScore();
-                displayLeaderboard();
+            if (Math.random() < 0.01) {
+                clouds.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height / 2),
+                    width: 100,
+                    height: 50,
+                    speed: 2
+                });
             }
 
-            function showLeaderboard() {
-                document.getElementById('game-over-screen').style.display = 'block';
-                displayLeaderboard();
-            }
-        });
+            requestAnimationFrame(gameLoop);
+        }
     </script>
 </body>
 </html>
